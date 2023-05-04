@@ -1,18 +1,21 @@
-function PlayerForm() {
-  return (
-    <div>
-      <div>
-        <textarea
-          cols="72"
-          rows="3"
-          placeholder="ign1 / ign2 ign3
+import { Button, Stack, TextField } from '@mui/material';
+
+const PlayerForm = () => (
+  <Stack spacing={3} alignItems="center">
+    <TextField
+      multiline
+      minRows={3}
+      style={{ width: 500 }}
+      label="Add player"
+      placeholder="ign1 / ign2 ign3
 job1, job2 | job 3
 bonus | belt | coin+parchment | parchment+belt | set
 "
-        />
-      </div>
-    </div>
-  );
-}
+    />
+    <Button variant="contained" size="small">
+      Add player
+    </Button>
+  </Stack>
+);
 
 export default PlayerForm;
