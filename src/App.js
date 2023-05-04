@@ -1,7 +1,10 @@
+import PlayerArea from './components/PlayerArea';
+import './index.css';
+
 function App() {
   return (
-    <div className="App">
-      Hello
+    <div className="container">
+      <PlayerArea />
     </div>
   );
 }
