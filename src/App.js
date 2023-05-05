@@ -107,7 +107,22 @@ function App() {
   const [players, setPlayers] = useState([]);
 
   const handleNewPlayer = (ps) => {
-    setPlayers(ps);
+    setPlayers(
+      ps.map((p, index) => ({
+        ...p,
+        id: index,
+      }))
+    );
+  };
+
+  const handleRemove = (id) => {
+    setPlayers((prevPlayers) => {
+      const updatedPlayers = prevPlayers.filter((p) => p.id !== id);
+      return updatedPlayers.map((p, index) => ({
+        ...p,
+        id: index,
+      }));
+    });
   };
 
   return (
@@ -118,7 +133,7 @@ function App() {
         </Box>
         <Box display="flex" justifyContent="space-evenly">
           <Box>
-            <PlayerForm players={players} handleNewPlayer={handleNewPlayer} />
+            <PlayerForm players={players} onAddPlayer={handleNewPlayer} />
           </Box>
           <Box>
             <Button variant="contained" color="error">
@@ -126,7 +141,7 @@ function App() {
             </Button>
           </Box>
         </Box>
-        <Roster players={players} />
+        <Roster players={players} onRemove={handleRemove} />
         <Button variant="contained" sx={{ color: 'primary' }}>
           Generate Team
         </Button>
