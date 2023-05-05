@@ -11,8 +11,9 @@ import {
   ToggleButton,
   ToggleButtonGroup,
 } from '@mui/material';
+import playerPropType from './playerPropType';
 
-const Roster = () => (
+const Roster = ({ players }) => (
   <TableContainer component={Paper} elevation={10} style={{ minWidth: 1000 }}>
     <Table>
       <TableHead>
@@ -24,7 +25,7 @@ const Roster = () => (
         </TableRow>
       </TableHead>
       <TableBody>
-        {rows.map((player) => (
+        {players.map((player) => (
           <TableRow
             key={player.id}
             sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
@@ -59,43 +60,6 @@ const Roster = () => (
   </TableContainer>
 );
 
-const rows = [
-  {
-    id: 1,
-    names: ['Alice', 'Bob'],
-    jobs: ['Developer', 'Designer'],
-    loots: [10, 20],
-  },
-  {
-    id: 2,
-    names: ['Charlie', 'David'],
-    jobs: ['Manager', 'Analyst'],
-    loots: [15, 25],
-  },
-  {
-    id: 3,
-    names: ['Eve', 'Frank'],
-    jobs: ['Engineer', 'Architect'],
-    loots: [5, 30, 'bonus'],
-  },
-  {
-    id: 4,
-    names: ['Eve', 'Frank'],
-    jobs: ['Engineer', 'Architect'],
-    loots: [5, 30, 'bonus'],
-  },
-  {
-    id: 5,
-    names: ['Eve', 'Frank'],
-    jobs: ['Engineer', 'Architect'],
-    loots: [5, 30, 'bonus'],
-  },
-  {
-    id: 6,
-    names: ['Eve', 'Frank'],
-    jobs: ['Engineer', 'Architect'],
-    loots: [5, 30, 'bonus'],
-  },
-];
+Roster.propTypes = playerPropType;
 
 export default Roster;
