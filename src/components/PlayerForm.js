@@ -9,7 +9,7 @@ const PlayerForm = () => (
       label="Add player"
       placeholder="ign1 / ign2 ign3
 job1, job2 | job 3
-bonus | belt | coin+parchment | parchment+belt | set
+bonus | belt
 "
     />
     <Button variant="contained" size="small">

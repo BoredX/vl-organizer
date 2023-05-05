@@ -11,7 +11,7 @@ import {
 } from '@mui/material';
 
 const Roster = () => (
-  <TableContainer component={Paper} elevation={10}>
+  <TableContainer component={Paper} elevation={10} style={{ minWidth: 1000 }}>
     <Table>
       <TableHead>
         <TableRow>
@@ -37,7 +37,7 @@ const Roster = () => (
                   size="small"
                   sx={{ bgcolor: 'primary.light' }}
                 >
-                  Disconnected
+                  No Bonus
                 </Button>
                 <Button variant="contained" size="small">
                   Edit
