@@ -87,7 +87,7 @@ const createPlayerFromHorizontalInput = (input) => {
   return player;
 };
 
-const PlayerForm = ({ players, handleNewPlayer }) => {
+const PlayerForm = ({ players, onAddPlayer }) => {
   const [input, setInput] = useState('');
   const [error, setError] = useState(false);
   const [isVerticalInput, setIsVerticalInput] = useState(true);
@@ -107,11 +107,8 @@ const PlayerForm = ({ players, handleNewPlayer }) => {
     const isInvalidInput =
       player.jobs === undefined || player.jobs.length !== player.names.length;
     setError(isInvalidInput);
-    console.log(player);
-    console.log(players);
     if (!isInvalidInput) {
-      console.log(typeof handleNewPlayer);
-      handleNewPlayer([...players, player]);
+      onAddPlayer([...players, player]);
       setInput('');
     }
   };
