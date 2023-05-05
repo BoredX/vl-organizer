@@ -1,4 +1,4 @@
-import { Button, Stack, TextField } from '@mui/material';
+import { Box, Button, Stack, TextField } from '@mui/material';
 import { useState } from 'react';
 import playerPropType from './playerPropType';
 
@@ -41,7 +41,7 @@ function filterArray(array) {
   return array.filter((item) => item && item.trim().length > 0);
 }
 
-const createPlayerFromInput = (input) => {
+const createPlayerFromVerticalInput = (input) => {
   const rows = input.split('\n');
   const player = {};
   for (let i = 0; i < rows.length; i += 1) {
@@ -60,16 +60,50 @@ const createPlayerFromInput = (input) => {
   return player;
 };
 
+const createPlayerFromHorizontalInput = (input) => {
+  const rows = input.split('\n');
+  const player = {};
+  const names = [];
+  const jobs = [];
+  const loots = [];
+  for (let i = 0; i < rows.length; i += 1) {
+    const sanitized = filterArray(parseDelimiters(rows[i]));
+    if (sanitized.length !== 3) {
+      player.jobs = undefined;
+      return player;
+    }
+    names.push(sanitized[0]);
+    const job = filterArray(parseJobs([sanitized[1]]));
+    if (job.length !== 1) {
+      player.jobs = undefined;
+      return player;
+    }
+    jobs.push(job[0]);
+    loots.push(parseSplits([sanitized[2]])[0]);
+  }
+  player.names = names;
+  player.jobs = jobs;
+  player.loots = loots;
+  return player;
+};
+
 const PlayerForm = ({ players, handleNewPlayer }) => {
   const [input, setInput] = useState('');
   const [error, setError] = useState(false);
+  const [isVerticalInput, setIsVerticalInput] = useState(true);
 
   const handleInput = (event) => {
     setInput(event.target.value);
   };
 
-  const handleClick = () => {
-    const player = createPlayerFromInput(input);
+  const handleSwitchVertical = () => {
+    setIsVerticalInput(!isVerticalInput);
+  };
+
+  const handleAddClick = () => {
+    const player = isVerticalInput
+      ? createPlayerFromVerticalInput(input)
+      : createPlayerFromHorizontalInput(input);
     const isInvalidInput =
       player.jobs === undefined || player.jobs.length !== player.names.length;
     setError(isInvalidInput);
@@ -86,21 +120,32 @@ const PlayerForm = ({ players, handleNewPlayer }) => {
     <Stack spacing={3} alignItems="center">
       <TextField
         multiline
-        minRows={3}
+        minRows={4}
         style={{ width: 500 }}
         label="Add player"
-        placeholder="ign1 / ign2 ign3
-job1, job2 | job 3
-bonus | belt
-"
+        placeholder={
+          isVerticalInput
+            ? '<vertical input>\nign1 / ign2 ign3 \njob1, job2 | job 3\nbonus | belt , bonus'
+            : '<horizontal input>\nign1 / job1 belt \nign2, job2 | bonus\nign3 | job3 | belt'
+        }
         value={input}
         error={error}
         helperText={error ? 'Invalid input. Check Jobs and Splits' : ''}
         onChange={handleInput}
       />
-      <Button variant="contained" size="small" onClick={handleClick}>
-        Add player
-      </Button>
+      <Box display="flex" width="70%" justifyContent="space-around">
+        <Button variant="contained" size="small" onClick={handleAddClick}>
+          Add player
+        </Button>
+        <Button
+          color="info"
+          variant="contained"
+          size="small"
+          onClick={handleSwitchVertical}
+        >
+          Switch Input Direction
+        </Button>
+      </Box>
     </Stack>
   );
 };
