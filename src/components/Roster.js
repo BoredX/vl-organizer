@@ -8,6 +8,8 @@ import {
   TableCell,
   Paper,
   Stack,
+  ToggleButton,
+  ToggleButtonGroup,
 } from '@mui/material';
 
 const Roster = () => (
@@ -31,14 +33,17 @@ const Roster = () => (
             <TableCell>{player.jobs.join(', ')}</TableCell>
             <TableCell>{player.loots.join(', ')}</TableCell>
             <TableCell>
-              <Stack direction="row" spacing={1} justifyContent="right">
-                <Button
-                  variant="contained"
-                  size="small"
-                  sx={{ bgcolor: 'primary.light' }}
-                >
-                  No Bonus
-                </Button>
+              <Stack direction="row" spacing={1}>
+                <ToggleButtonGroup>
+                  <ToggleButton
+                    variant="contained"
+                    size="small"
+                    sx={{ bgcolor: 'success.light' }}
+                    value="bonus"
+                  >
+                    Bonus
+                  </ToggleButton>
+                </ToggleButtonGroup>
                 <Button variant="contained" size="small">
                   Edit
                 </Button>
@@ -69,6 +74,24 @@ const rows = [
   },
   {
     id: 3,
+    names: ['Eve', 'Frank'],
+    jobs: ['Engineer', 'Architect'],
+    loots: [5, 30, 'bonus'],
+  },
+  {
+    id: 4,
+    names: ['Eve', 'Frank'],
+    jobs: ['Engineer', 'Architect'],
+    loots: [5, 30, 'bonus'],
+  },
+  {
+    id: 5,
+    names: ['Eve', 'Frank'],
+    jobs: ['Engineer', 'Architect'],
+    loots: [5, 30, 'bonus'],
+  },
+  {
+    id: 6,
     names: ['Eve', 'Frank'],
     jobs: ['Engineer', 'Architect'],
     loots: [5, 30, 'bonus'],
