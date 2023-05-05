@@ -1,5 +1,6 @@
 import { Box, Stack, Button, Typography } from '@mui/material';
 import './index.css';
+import { useState } from 'react';
 import PlayerForm from './components/PlayerForm';
 import Roster from './components/Roster';
 import TeamRow from './components/TeamRow';
@@ -87,27 +88,37 @@ const bonus = [
   { id: 20, name: 'Steve', boxes: [58, 59, 60] },
 ];
 
+const player = {
+  id: 1,
+  names: ['ign1', 'ign2'],
+  jobs: ['NL', 'BS'],
+  loots: ['belt', 'bonus'],
+  isBonus: true,
+  chosenName: 'ign1',
+  chosenJob: 'NL',
+  team: '',
+  isShad: false,
+  isBs: false,
+  isBucc: false,
+  boxes: ['a1', 'a2'],
+};
+
 function App() {
+  const [players, setPlayers] = useState([]);
+
+  const handleNewPlayer = (ps) => {
+    setPlayers(ps);
+  };
+
   return (
-    <Box
-      my={7}
-      display="flex"
-      alignItems="center"
-      justifyContent="center"
-      // bgcolor="green"
-    >
+    <Box my={7} display="flex" alignItems="center" justifyContent="center">
       <Stack spacing={6}>
         <Box display="flex" justifyContent="center">
           <Typography variant="h3">VL Organizer</Typography>
         </Box>
-        <Box
-          display="flex"
-          justifyContent="space-evenly"
-          // bgcolor="blue"
-        >
-          <Box // bgcolor="red"
-          >
-            <PlayerForm />
+        <Box display="flex" justifyContent="space-evenly">
+          <Box>
+            <PlayerForm players={players} handleNewPlayer={handleNewPlayer} />
           </Box>
           <Box>
             <Button variant="contained" color="error">
@@ -115,7 +126,7 @@ function App() {
             </Button>
           </Box>
         </Box>
-        <Roster />
+        <Roster players={players} />
         <Button variant="contained" sx={{ color: 'primary' }}>
           Generate Team
         </Button>
