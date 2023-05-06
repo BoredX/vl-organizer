@@ -1,5 +1,5 @@
 import { Box, Button, Stack, TextField } from '@mui/material';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import playerPropType from './playerPropType';
 
 // split on comma, pipe, slash, space
@@ -20,7 +20,7 @@ const jobMapping = {
   DK: ['dk', 'drk', 'dark'],
   Pally: ['pally', 'paly'],
   Hero: ['hero'],
-  Bucc: ['bucc', 'buc'],
+  Bucc: ['bucc', 'buc', 'buccaneer'],
   Sair: ['sair'],
   SE: ['mm', 'bm', 'se'],
   BS: ['bs', 'bishop', 'bish', 'bis'],
@@ -30,10 +30,24 @@ const reverseJobMap = reverseMap(jobMapping);
 
 const parseJobs = (jobs) => jobs.map((job) => reverseJobMap[job.toLowerCase()]);
 
-const parseSplits = (splits, chars) => {
+const parseSplits = (splits, numChars, isVerticalInput) => {
   const normalizedSplits =
-    splits.length === 1 ? new Array(chars).fill(splits[0]) : splits;
-  return normalizedSplits.map((split) => (split === 'belt' ? 'belt' : 'bonus'));
+    splits.length === 1 ? new Array(numChars).fill(splits[0]) : splits;
+  const splitsMapped = normalizedSplits.map((split) =>
+    split.toLowerCase() === 'belt' ? 'belt' : 'bonus'
+  );
+  const finalLengthSplits =
+    splitsMapped.length > numChars
+      ? splitsMapped.slice(0, numChars)
+      : splitsMapped;
+  return isVerticalInput && finalLengthSplits.length !== numChars
+    ? [
+        ...finalLengthSplits,
+        ...Array(Math.max(0, numChars - finalLengthSplits.length)).fill(
+          'bonus'
+        ),
+      ]
+    : finalLengthSplits;
 };
 
 function filterArray(array) {
@@ -54,7 +68,7 @@ const createPlayerFromVerticalInput = (input) => {
       player.jobs =
         sanitizedJobs.length === sanitized.length ? sanitizedJobs : [];
     } else if (i === 2) {
-      player.loots = parseSplits(sanitized, player.names.length);
+      player.loots = parseSplits(sanitized, player.names.length, true);
     }
   }
   return player;
@@ -87,10 +101,27 @@ const createPlayerFromHorizontalInput = (input) => {
   return player;
 };
 
-const PlayerForm = ({ players, onAddPlayer }) => {
-  const [input, setInput] = useState('');
+const formatPlayer = (p) => {
+  if (p === null) {
+    return '';
+  }
+  const names = p.names.join(', ');
+  const jobs = p.jobs.join(', ');
+  const loots = p.loots.join(', ');
+  return `${names}\n${jobs}\n${loots}`;
+};
+
+const PlayerForm = ({ players, onAddPlayer, editingPlayer, onSubmitEdit }) => {
+  const [input, setInput] = useState();
   const [error, setError] = useState(false);
   const [isVerticalInput, setIsVerticalInput] = useState(true);
+
+  useEffect(() => {
+    setInput(formatPlayer(editingPlayer));
+    if (editingPlayer !== null) {
+      setIsVerticalInput(true);
+    }
+  }, [editingPlayer]);
 
   const handleInput = (event) => {
     setInput(event.target.value);
@@ -100,15 +131,32 @@ const PlayerForm = ({ players, onAddPlayer }) => {
     setIsVerticalInput(!isVerticalInput);
   };
 
-  const handleAddClick = () => {
+  const handleClick = () => {
+    if (editingPlayer !== null) {
+      setIsVerticalInput(true);
+    }
     const player = isVerticalInput
       ? createPlayerFromVerticalInput(input)
       : createPlayerFromHorizontalInput(input);
     const isInvalidInput =
       player.jobs === undefined || player.jobs.length !== player.names.length;
     setError(isInvalidInput);
+    if (isInvalidInput) {
+      console.log('igns', player.names);
+      console.log('jobs', player.jobs);
+      console.log('splits', player.loots);
+    }
     if (!isInvalidInput) {
-      onAddPlayer([...players, player]);
+      if (editingPlayer === null) {
+        onAddPlayer([...players, player]);
+      } else {
+        onSubmitEdit({
+          ...editingPlayer,
+          names: player.names,
+          jobs: player.jobs,
+          loots: player.loots,
+        });
+      }
       setInput('');
     }
   };
@@ -119,7 +167,7 @@ const PlayerForm = ({ players, onAddPlayer }) => {
         multiline
         minRows={4}
         style={{ width: 500 }}
-        label="Add player"
+        label={editingPlayer === null ? 'Add player' : 'Edit player'}
         placeholder={
           isVerticalInput
             ? '<vertical input>\nign1 / ign2 ign3 \njob1, job2 | job 3\nbonus | belt , bonus'
@@ -131,16 +179,22 @@ const PlayerForm = ({ players, onAddPlayer }) => {
         onChange={handleInput}
       />
       <Box display="flex" width="70%" justifyContent="space-around">
-        <Button variant="contained" size="small" onClick={handleAddClick}>
-          Add player
+        <Button
+          style={{ width: 120 }}
+          variant="contained"
+          size="small"
+          onClick={handleClick}
+        >
+          {editingPlayer === null ? 'Add player' : 'Save player'}
         </Button>
         <Button
           color="info"
           variant="contained"
           size="small"
           onClick={handleSwitchVertical}
+          style={{ width: 150 }}
         >
-          Switch Input Direction
+          {isVerticalInput ? 'Horizontal Input' : 'Vertical Input'}
         </Button>
       </Box>
     </Stack>

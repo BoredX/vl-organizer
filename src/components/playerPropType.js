@@ -11,6 +11,7 @@ const playerPropType = {
   isBs: PropTypes.bool,
   isBucc: PropTypes.bool,
   isBonus: PropTypes.bool,
+  isBelt: PropTypes.bool,
   boxes: PropTypes.arrayOf(PropTypes.string),
 };
 

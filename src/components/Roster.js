@@ -13,7 +13,7 @@ import {
 } from '@mui/material';
 import playerPropType from './playerPropType';
 
-const Roster = ({ players, onRemove }) => {
+const Roster = ({ players, onRemove, onEdit }) => {
   const handleRemove = (id) => {
     onRemove(id);
   };
@@ -22,6 +22,7 @@ const Roster = ({ players, onRemove }) => {
       <Table>
         <TableHead>
           <TableRow>
+            <TableCell>No.</TableCell>
             <TableCell>IGNs</TableCell>
             <TableCell>Jobs</TableCell>
             <TableCell>Loot</TableCell>
@@ -34,6 +35,7 @@ const Roster = ({ players, onRemove }) => {
               key={player.id}
               sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
             >
+              <TableCell>{player.id + 1}</TableCell>
               <TableCell>{player.names.join(', ')}</TableCell>
               <TableCell>{player.jobs.join(', ')}</TableCell>
               <TableCell>{player.loots.join(', ')}</TableCell>
@@ -45,18 +47,23 @@ const Roster = ({ players, onRemove }) => {
                       size="small"
                       sx={{ bgcolor: 'success.light' }}
                       value="bonus"
+                      selected={!player.isBonus}
                     >
                       Bonus
                     </ToggleButton>
                   </ToggleButtonGroup>
-                  <Button variant="contained" size="small">
+                  <Button
+                    variant="contained"
+                    size="small"
+                    onClick={() => onEdit(player)}
+                  >
                     Edit
                   </Button>
                   <Button
                     variant="contained"
                     size="small"
                     color="error"
-                    onClick={() => handleRemove(player.id)}
+                    onClick={() => onRemove(player.id)}
                   >
                     Remove
                   </Button>
