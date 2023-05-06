@@ -88,23 +88,13 @@ const bonus = [
   { id: 20, name: 'Steve', boxes: [58, 59, 60] },
 ];
 
-const player = {
-  id: 1,
-  names: ['ign1', 'ign2'],
-  jobs: ['NL', 'BS'],
-  loots: ['belt', 'bonus'],
-  isBonus: true,
-  chosenName: 'ign1',
-  chosenJob: 'NL',
-  team: '',
-  isShad: false,
-  isBs: false,
-  isBucc: false,
-  boxes: ['a1', 'a2'],
-};
-
 function App() {
   const [players, setPlayers] = useState([]);
+  const [editingPlayer, setEditingPlayer] = useState(null);
+
+  const handleStartEdit = (pl) => {
+    setEditingPlayer(pl);
+  };
 
   const handleNewPlayer = (ps) => {
     setPlayers(
@@ -113,6 +103,13 @@ function App() {
         id: index,
       }))
     );
+  };
+
+  const handleUpdatePlayer = (updatedPlayer) => {
+    setPlayers(
+      players.map((p) => (p.id === updatedPlayer.id ? updatedPlayer : p))
+    );
+    setEditingPlayer(null);
   };
 
   const handleRemove = (id) => {
@@ -133,7 +130,12 @@ function App() {
         </Box>
         <Box display="flex" justifyContent="space-evenly">
           <Box>
-            <PlayerForm players={players} onAddPlayer={handleNewPlayer} />
+            <PlayerForm
+              players={players}
+              onAddPlayer={handleNewPlayer}
+              editingPlayer={editingPlayer}
+              onSubmitEdit={handleUpdatePlayer}
+            />
           </Box>
           <Box>
             <Button variant="contained" color="error">
@@ -141,7 +143,11 @@ function App() {
             </Button>
           </Box>
         </Box>
-        <Roster players={players} onRemove={handleRemove} />
+        <Roster
+          players={players}
+          onRemove={handleRemove}
+          onEdit={handleStartEdit}
+        />
         <Button variant="contained" sx={{ color: 'primary' }}>
           Generate Team
         </Button>
