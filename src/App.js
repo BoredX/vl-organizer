@@ -6,6 +6,7 @@ import Roster from './components/Roster';
 import TeamRow from './components/TeamRow';
 import MiscRow from './components/MiscRow';
 import BonusTable from './components/BonusTable';
+import { generateTeam, rollBonus, rollLoot, rollNx } from './utils/generator';
 
 const teamMap = {
   A: [
@@ -91,21 +92,25 @@ const bonus = [
 function App() {
   const [players, setPlayers] = useState([]);
   const [editingPlayer, setEditingPlayer] = useState(null);
+  // const [shadParty, setShadParty] = useState(null);
+  // const [beltLooters, setBeltLooters] = useState([]);
 
   const handleStartEdit = (pl) => {
     setEditingPlayer(pl);
   };
 
   const handleNewPlayer = (ps) => {
-    setPlayers(
-      ps.map((p, index) => ({
-        ...p,
-        id: index,
-      }))
-    );
+    if (ps.length <= 30) {
+      setPlayers(
+        ps.map((p, index) => ({
+          ...p,
+          id: index,
+        }))
+      );
+    }
   };
 
-  const handleUpdatePlayer = (updatedPlayer) => {
+  const handleEditPlayer = (updatedPlayer) => {
     setPlayers(
       players.map((p) => (p.id === updatedPlayer.id ? updatedPlayer : p))
     );
@@ -122,6 +127,46 @@ function App() {
     });
   };
 
+  const handleToggleBelt = (id, isBelt) => {
+    const newFlags = {
+      isBelt: true,
+      isBonus: false,
+      isNx: false,
+    };
+    if (isBelt) {
+      setPlayers(
+        players.map((p) => (p.id === id ? { ...p, isBelt: false } : p))
+      );
+    } else {
+      const numBelts = players.filter((p) => p.isBelt).length;
+      if (numBelts < 6) {
+        setPlayers(
+          players.map((p) => (p.id === id ? { ...p, ...newFlags } : p))
+        );
+      }
+    }
+  };
+
+  const handleToggleBonus = (id, isBonus) => {
+    const newFlags = {
+      isBelt: false,
+      isBonus: true,
+    };
+    if (isBonus) {
+      setPlayers(
+        players.map((p) => (p.id === id ? { ...p, isBonus: false } : p))
+      );
+    } else {
+      setPlayers(players.map((p) => (p.id === id ? { ...p, ...newFlags } : p)));
+    }
+  };
+
+  const handleToggleNx = (id, isBelt, isNx) => {
+    if (!isBelt) {
+      setPlayers(players.map((p) => (p.id === id ? { ...p, isNx: !isNx } : p)));
+    }
+  };
+
   return (
     <Box my={7} display="flex" alignItems="center" justifyContent="center">
       <Stack spacing={6}>
@@ -134,21 +179,42 @@ function App() {
               players={players}
               onAddPlayer={handleNewPlayer}
               editingPlayer={editingPlayer}
-              onSubmitEdit={handleUpdatePlayer}
+              onSubmitEdit={handleEditPlayer}
             />
           </Box>
-          <Box>
+          <Stack spacing={4}>
             <Button variant="contained" color="error">
               Reset Run
             </Button>
-          </Box>
+            <Button
+              variant="contained"
+              color="success"
+              onClick={() => rollLoot(players, setPlayers)}
+            >
+              Roll loot
+            </Button>
+            <Button
+              variant="contained"
+              color="success"
+              onClick={() => rollNx(players, setPlayers)}
+            >
+              Roll NX
+            </Button>
+          </Stack>
         </Box>
         <Roster
           players={players}
           onRemove={handleRemove}
           onEdit={handleStartEdit}
+          onToggleBelt={handleToggleBelt}
+          onToggleBonus={handleToggleBonus}
+          onToggleNx={handleToggleNx}
         />
-        <Button variant="contained" sx={{ color: 'primary' }}>
+        <Button
+          variant="contained"
+          sx={{ color: 'primary' }}
+          onClick={() => generateTeam(players, setPlayers)}
+        >
           Generate Team
         </Button>
         <TeamRow teamMap={teamMap} />

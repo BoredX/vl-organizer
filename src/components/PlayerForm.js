@@ -30,24 +30,16 @@ const reverseJobMap = reverseMap(jobMapping);
 
 const parseJobs = (jobs) => jobs.map((job) => reverseJobMap[job.toLowerCase()]);
 
-const parseSplits = (splits, numChars, isVerticalInput) => {
+const parseSplits = (splits, numChars) => {
   const normalizedSplits =
     splits.length === 1 ? new Array(numChars).fill(splits[0]) : splits;
   const splitsMapped = normalizedSplits.map((split) =>
     split.toLowerCase() === 'belt' ? 'belt' : 'bonus'
   );
-  const finalLengthSplits =
-    splitsMapped.length > numChars
-      ? splitsMapped.slice(0, numChars)
-      : splitsMapped;
-  return isVerticalInput && finalLengthSplits.length !== numChars
-    ? [
-        ...finalLengthSplits,
-        ...Array(Math.max(0, numChars - finalLengthSplits.length)).fill(
-          'bonus'
-        ),
-      ]
-    : finalLengthSplits;
+  // if split is input with spaces etc
+  return splitsMapped.length > numChars
+    ? splitsMapped.slice(0, numChars)
+    : splitsMapped;
 };
 
 function filterArray(array) {
@@ -68,7 +60,7 @@ const createPlayerFromVerticalInput = (input) => {
       player.jobs =
         sanitizedJobs.length === sanitized.length ? sanitizedJobs : [];
     } else if (i === 2) {
-      player.loots = parseSplits(sanitized, player.names.length, true);
+      player.loots = parseSplits(sanitized, player.names.length);
     }
   }
   return player;
@@ -135,11 +127,13 @@ const PlayerForm = ({ players, onAddPlayer, editingPlayer, onSubmitEdit }) => {
     if (editingPlayer !== null) {
       setIsVerticalInput(true);
     }
-    const player = isVerticalInput
+    let player = isVerticalInput
       ? createPlayerFromVerticalInput(input)
       : createPlayerFromHorizontalInput(input);
     const isInvalidInput =
-      player.jobs === undefined || player.jobs.length !== player.names.length;
+      player.jobs === undefined ||
+      player.jobs.length !== player.names.length ||
+      player.loots.length !== player.names.length;
     setError(isInvalidInput);
     if (isInvalidInput) {
       console.log('igns', player.names);
@@ -147,6 +141,18 @@ const PlayerForm = ({ players, onAddPlayer, editingPlayer, onSubmitEdit }) => {
       console.log('splits', player.loots);
     }
     if (!isInvalidInput) {
+      player = {
+        ...player,
+        chosenIndex: -1,
+        team: '',
+        isShad: false,
+        isBs: false,
+        isBucc: false,
+        isBonus: false,
+        isBelt: false,
+        ixNx: false,
+        boxes: [],
+      };
       if (editingPlayer === null) {
         onAddPlayer([...players, player]);
       } else {
