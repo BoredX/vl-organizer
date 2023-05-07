@@ -13,69 +13,100 @@ import {
 } from '@mui/material';
 import playerPropType from './playerPropType';
 
-const Roster = ({ players, onRemove, onEdit }) => {
-  const handleRemove = (id) => {
-    onRemove(id);
-  };
-  return (
-    <TableContainer component={Paper} elevation={10} style={{ minWidth: 1000 }}>
-      <Table>
-        <TableHead>
-          <TableRow>
-            <TableCell>No.</TableCell>
-            <TableCell>IGNs</TableCell>
-            <TableCell>Jobs</TableCell>
-            <TableCell>Loot</TableCell>
-            <TableCell style={{ width: 10 }}>Action</TableCell>
+const Roster = ({
+  players,
+  onRemove,
+  onEdit,
+  onToggleBonus,
+  onToggleBelt,
+  onToggleNx,
+}) => (
+  <TableContainer component={Paper} elevation={10} style={{ minWidth: 1000 }}>
+    <Table>
+      <TableHead>
+        <TableRow>
+          <TableCell>No.</TableCell>
+          <TableCell>IGNs</TableCell>
+          <TableCell>Jobs</TableCell>
+          <TableCell>Loot</TableCell>
+          <TableCell style={{ width: 10 }}>Action</TableCell>
+        </TableRow>
+      </TableHead>
+      <TableBody>
+        {players.map((player) => (
+          <TableRow
+            key={player.id}
+            sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
+          >
+            <TableCell>{player.id + 1}</TableCell>
+            <TableCell>{player.names.join(', ')}</TableCell>
+            <TableCell>{player.jobs.join(', ')}</TableCell>
+            <TableCell>{player.loots.join(', ')}</TableCell>
+            <TableCell>
+              <Stack direction="row" spacing={1}>
+                <ToggleButtonGroup>
+                  <ToggleButton
+                    variant="contained"
+                    size="small"
+                    sx={{ bgcolor: 'success.light' }}
+                    value="belt"
+                    selected={!player.isBelt}
+                    onClick={() =>
+                      onToggleBelt(player.id, player.isBelt, player.isNx)
+                    }
+                  >
+                    Belt
+                  </ToggleButton>
+                </ToggleButtonGroup>
+                <ToggleButtonGroup>
+                  <ToggleButton
+                    variant="contained"
+                    size="small"
+                    sx={{ bgcolor: 'success.light' }}
+                    value="nx"
+                    selected={!player.isNx}
+                    onClick={() =>
+                      onToggleNx(player.id, player.isBelt, player.isNx)
+                    }
+                  >
+                    NX
+                  </ToggleButton>
+                </ToggleButtonGroup>
+                <ToggleButtonGroup>
+                  <ToggleButton
+                    variant="contained"
+                    size="small"
+                    sx={{ bgcolor: 'success.light' }}
+                    value="bonus"
+                    selected={!player.isBonus}
+                    onClick={() => onToggleBonus(player.id, player.isBonus)}
+                  >
+                    Bonus
+                  </ToggleButton>
+                </ToggleButtonGroup>
+                <Button
+                  variant="contained"
+                  size="small"
+                  onClick={() => onEdit(player)}
+                >
+                  Edit
+                </Button>
+                <Button
+                  variant="contained"
+                  size="small"
+                  color="error"
+                  onClick={() => onRemove(player.id)}
+                >
+                  Remove
+                </Button>
+              </Stack>
+            </TableCell>
           </TableRow>
-        </TableHead>
-        <TableBody>
-          {players.map((player) => (
-            <TableRow
-              key={player.id}
-              sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
-            >
-              <TableCell>{player.id + 1}</TableCell>
-              <TableCell>{player.names.join(', ')}</TableCell>
-              <TableCell>{player.jobs.join(', ')}</TableCell>
-              <TableCell>{player.loots.join(', ')}</TableCell>
-              <TableCell>
-                <Stack direction="row" spacing={1}>
-                  <ToggleButtonGroup>
-                    <ToggleButton
-                      variant="contained"
-                      size="small"
-                      sx={{ bgcolor: 'success.light' }}
-                      value="bonus"
-                      selected={!player.isBonus}
-                    >
-                      Bonus
-                    </ToggleButton>
-                  </ToggleButtonGroup>
-                  <Button
-                    variant="contained"
-                    size="small"
-                    onClick={() => onEdit(player)}
-                  >
-                    Edit
-                  </Button>
-                  <Button
-                    variant="contained"
-                    size="small"
-                    color="error"
-                    onClick={() => onRemove(player.id)}
-                  >
-                    Remove
-                  </Button>
-                </Stack>
-              </TableCell>
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
-    </TableContainer>
-  );
-};
+        ))}
+      </TableBody>
+    </Table>
+  </TableContainer>
+);
 
 Roster.propTypes = playerPropType;
 
