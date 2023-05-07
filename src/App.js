@@ -1,12 +1,17 @@
-import { Box, Stack, Button, Typography } from '@mui/material';
+import { Box, Stack, Button, Typography, Tooltip } from '@mui/material';
 import './index.css';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import PlayerForm from './components/PlayerForm';
 import Roster from './components/Roster';
 import TeamRow from './components/TeamRow';
 import MiscRow from './components/MiscRow';
-import BonusTable from './components/BonusTable';
-import { generateTeam, rollBonus, rollLoot, rollNx } from './utils/generator';
+import {
+  generateBonusArray,
+  generateTeam,
+  rollLoot,
+  rollNx,
+} from './utils/generator';
+import BonusRow from './components/BonusRow';
 
 const teamMap = {
   A: [
@@ -66,34 +71,19 @@ const miscMap = {
   ],
 };
 
-const bonus = [
-  { id: 1, name: 'John', boxes: [1, 2, 3] },
-  { id: 2, name: 'Jane', boxes: [4, 5, 6] },
-  { id: 3, name: 'Bob', boxes: [7, 8, 9] },
-  { id: 4, name: 'Alice', boxes: [10, 11, 12] },
-  { id: 5, name: 'Eve', boxes: [13, 14, 15] },
-  { id: 6, name: 'Dave', boxes: [16, 17, 18] },
-  { id: 7, name: 'Carol', boxes: [19, 20, 21] },
-  { id: 8, name: 'Frank', boxes: [22, 23, 24] },
-  { id: 9, name: 'George', boxes: [25, 26, 27] },
-  { id: 10, name: 'Harry', boxes: [28, 29, 30] },
-  { id: 11, name: 'Irene', boxes: [31, 32, 33] },
-  { id: 12, name: 'Kevin', boxes: [34, 35, 36] },
-  { id: 13, name: 'Laura', boxes: [37, 38, 39] },
-  { id: 14, name: 'Mike', boxes: [40, 41, 42] },
-  { id: 15, name: 'Nancy', boxes: [43, 44, 45] },
-  { id: 16, name: 'Oscar', boxes: [46, 47, 48] },
-  { id: 17, name: 'Peter', boxes: [49, 50, 51] },
-  { id: 18, name: 'Quinn', boxes: [52, 53, 54] },
-  { id: 19, name: 'Rachel', boxes: [55, 56, 57] },
-  { id: 20, name: 'Steve', boxes: [58, 59, 60] },
-];
-
 function App() {
-  const [players, setPlayers] = useState([]);
+  const [players, setPlayers] = useState(() => {
+    const savedPlayers = localStorage.getItem('players');
+    return savedPlayers !== null ? JSON.parse(savedPlayers) : [];
+  });
   const [editingPlayer, setEditingPlayer] = useState(null);
   // const [shadParty, setShadParty] = useState(null);
   // const [beltLooters, setBeltLooters] = useState([]);
+  const [bonusArray, setBonusArray] = useState([[], [], []]);
+
+  useEffect(() => {
+    localStorage.setItem('players', JSON.stringify(players));
+  }, [players]);
 
   const handleStartEdit = (pl) => {
     setEditingPlayer(pl);
@@ -219,11 +209,20 @@ function App() {
         </Button>
         <TeamRow teamMap={teamMap} />
         <MiscRow miscMap={miscMap} />
-        <Button variant="contained" color="success">
-          Generate Bonus
-        </Button>
+        <Tooltip
+          placement="top"
+          title="Supports random layout for 12+ looters. NX looters have less box"
+        >
+          <Button
+            variant="contained"
+            color="success"
+            onClick={() => generateBonusArray(players, setBonusArray)}
+          >
+            Generate Bonus
+          </Button>
+        </Tooltip>
         <Box display="flex" justifyContent="center">
-          <BonusTable listBonus={bonus} />
+          {bonusArray && <BonusRow bonusArray={bonusArray} />}
         </Box>
         <img src="/vl_bonus.png" alt="Bonus map" />
       </Stack>

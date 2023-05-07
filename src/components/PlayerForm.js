@@ -150,7 +150,7 @@ const PlayerForm = ({ players, onAddPlayer, editingPlayer, onSubmitEdit }) => {
         isBucc: false,
         isBonus: false,
         isBelt: false,
-        ixNx: false,
+        isNx: false,
         boxes: [],
       };
       if (editingPlayer === null) {
