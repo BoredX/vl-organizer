@@ -6,25 +6,17 @@ import {
   TableBody,
   TableCell,
   TableContainer,
-  TableHead,
   TableRow,
 } from '@mui/material';
 
-const BonusTable = ({ listBonus }) => (
+const BonusTable = ({ bonusPlayers }) => (
   <Box>
     <TableContainer component={Paper} elevation={10}>
       <Table>
-        <TableHead>
-          <TableRow>
-            <TableCell colSpan={2} align="center">
-              Bonus
-            </TableCell>
-          </TableRow>
-        </TableHead>
         <TableBody>
-          {listBonus.map((player) => (
+          {bonusPlayers.map((player) => (
             <TableRow
-              key={player.id}
+              key={player.name}
               sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
             >
               <TableCell>{player.boxes}</TableCell>
@@ -38,11 +30,10 @@ const BonusTable = ({ listBonus }) => (
 );
 
 BonusTable.propTypes = {
-  listBonus: PropTypes.arrayOf(
+  bonusPlayers: PropTypes.arrayOf(
     PropTypes.shape({
-      id: PropTypes.string,
-      name: PropTypes.string,
       boxes: PropTypes.string,
+      name: PropTypes.string,
     })
   ),
 };
