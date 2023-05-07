@@ -39,7 +39,7 @@ const updateWithBeltLooters = (players) => {
   });
 };
 
-export const rollNx = (players, updatePlayers) => {
+export const rollNx = (players) => {
   const removedNx = players.map((p) => ({ ...p, isNx: false }));
   const bonusLooters = removedNx.filter((p) => p.isBonus && !p.isBelt);
   const numNx = prompt('Enter number of NX dropped', '');
@@ -47,17 +47,15 @@ export const rollNx = (players, updatePlayers) => {
   const playersChosen = bonusLooters.filter((p, i) =>
     nxLootersIndex.includes(i)
   );
-  updatePlayers(
-    removedNx.map((p) => {
-      const chosenPlayer = playersChosen.find((p2) => p.id === p2.id);
-      return chosenPlayer ? { ...p, isNx: true } : p;
-    })
-  );
+  return removedNx.map((p) => {
+    const chosenPlayer = playersChosen.find((p2) => p.id === p2.id);
+    return chosenPlayer ? { ...p, isNx: true } : p;
+  });
 };
 
-export const rollLoot = (players, updatePlayers) => {
+export const rollLoot = (players) => {
   const updatedPlayersWithBelts = updateWithBeltLooters(players);
-  updatePlayers(updatedPlayersWithBelts);
+  return updatedPlayersWithBelts;
 };
 
 export const rollBonus = (players, setPlayers) => {
@@ -65,7 +63,7 @@ export const rollBonus = (players, setPlayers) => {
   console.log(setPlayers);
 };
 
-export const generateBonusArray = (players, setBonusArray) => {
+export const generateBonusArray = (players) => {
   const resetBonus = players.map((p) => ({ ...p, boxes: '' }));
   const bonusLooters = resetBonus.filter((p) => p.isBonus);
   const minBoxPerPlayer = Math.floor(30 / bonusLooters.length);
@@ -191,8 +189,7 @@ export const generateBonusArray = (players, setBonusArray) => {
       return { boxes: p.boxes, name: p.names[p.chosenIndex] };
     })
   );
-  console.log(result);
-  setBonusArray(result);
+  return result;
 };
 
 export const generateTeam = (players, updatePlayers) => {

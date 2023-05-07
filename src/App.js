@@ -100,7 +100,7 @@ function App() {
     }
   };
 
-  const handleEditPlayer = (updatedPlayer) => {
+  const handleUpdatePlayer = (updatedPlayer) => {
     setPlayers(
       players.map((p) => (p.id === updatedPlayer.id ? updatedPlayer : p))
     );
@@ -157,6 +157,18 @@ function App() {
     }
   };
 
+  const handleRollLoot = () => {
+    setPlayers(rollLoot(players));
+  };
+
+  const handleRollNx = () => {
+    setPlayers(rollNx(players));
+  };
+
+  const handleGenerateBonus = () => {
+    setBonusArray(generateBonusArray(players));
+  };
+
   return (
     <Box my={7} display="flex" alignItems="center" justifyContent="center">
       <Stack spacing={6}>
@@ -169,7 +181,7 @@ function App() {
               players={players}
               onAddPlayer={handleNewPlayer}
               editingPlayer={editingPlayer}
-              onSubmitEdit={handleEditPlayer}
+              onSubmitEdit={handleUpdatePlayer}
             />
           </Box>
           <Stack spacing={4}>
@@ -179,15 +191,11 @@ function App() {
             <Button
               variant="contained"
               color="success"
-              onClick={() => rollLoot(players, setPlayers)}
+              onClick={handleRollLoot}
             >
               Roll loot
             </Button>
-            <Button
-              variant="contained"
-              color="success"
-              onClick={() => rollNx(players, setPlayers)}
-            >
+            <Button variant="contained" color="success" onClick={handleRollNx}>
               Roll NX
             </Button>
           </Stack>
@@ -216,7 +224,7 @@ function App() {
           <Button
             variant="contained"
             color="success"
-            onClick={() => generateBonusArray(players, setBonusArray)}
+            onClick={() => handleGenerateBonus()}
           >
             Generate Bonus
           </Button>

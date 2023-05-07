@@ -123,7 +123,7 @@ const PlayerForm = ({ players, onAddPlayer, editingPlayer, onSubmitEdit }) => {
     setIsVerticalInput(!isVerticalInput);
   };
 
-  const handleClick = () => {
+  const handleAddClick = () => {
     if (editingPlayer !== null) {
       setIsVerticalInput(true);
     }
@@ -189,7 +189,7 @@ const PlayerForm = ({ players, onAddPlayer, editingPlayer, onSubmitEdit }) => {
           style={{ width: 120 }}
           variant="contained"
           size="small"
-          onClick={handleClick}
+          onClick={handleAddClick}
         >
           {editingPlayer === null ? 'Add player' : 'Save player'}
         </Button>
