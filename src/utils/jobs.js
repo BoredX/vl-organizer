@@ -1,4 +1,6 @@
-export const jobMapping = {
+import { invert } from 'lodash';
+
+const jobNameMapping = {
   NL: ['nl'],
   Shad: ['shadower', 'shad'],
   DK: ['dk', 'drk', 'dark'],
@@ -10,74 +12,109 @@ export const jobMapping = {
   BS: ['bs', 'bishop', 'bish', 'bis'],
 };
 
+const reverseMap = (map) =>
+  Object.entries(map).reduce((acc, [key, values]) => {
+    values.forEach((value) => {
+      acc[value] = key;
+    });
+    return acc;
+  }, {});
+
+export const reverseJobNamesMap = reverseMap(jobNameMapping);
+
 export const Job = (() => {
   const jobs = {};
-  for (const key of Object.keys(jobMapping)) {
+  for (const key of Object.keys(jobNameMapping)) {
     jobs[key] = key;
   }
   return jobs;
 })();
 
 export const jobFlags = (job) => ({
-  isBs: job === 'BS',
-  isShad: job === 'Shad',
-  isBucc: job === 'Bucc',
-  isSe: job === 'SE',
-  isWar: job === 'DK' || job === 'Hero' || job === 'Pally',
-  isNl: job === 'NL',
-  isSair: job === 'Sair',
+  isBs: job === Job.BS,
+  isShad: job === Job.Shad,
+  isBucc: job === Job.Bucc,
+  isSe: job === Job.SE,
+  isWar: job === Job.DK || job === Job.Hero || job === Job.Pally,
+  isNl: job === Job.NL,
+  isSair: job === Job.Sair,
 });
 
-// Tier list should match tier list "lists" ordering in generateTeam.
-export const indexOfCharAtTier = (tier, player) => {
-  let indexOfJobInChar;
-  switch (tier) {
-    case 0:
-      indexOfJobInChar = getBuccIndex(player);
-      break;
-    case 1:
-      indexOfJobInChar = getShadIndex(player);
-      break;
-    case 2:
-      indexOfJobInChar =
-        getHeroIndex(player) >= 0 ? getHeroIndex(player) : getDkIndex(player);
-      break;
-    case 3:
-      indexOfJobInChar = getNLIndex(player);
-      break;
-    case 4:
-      indexOfJobInChar = getSEIndex(player);
-      break;
-    case 5:
-      indexOfJobInChar = getSairIndex(player);
-      break;
-    case 6:
-      indexOfJobInChar = getPallyIndex(player);
-      break;
-    case 7:
-      indexOfJobInChar = getBSIndex(player);
-      break;
-    default:
-      indexOfJobInChar = 0;
-  }
+const tierList = (() => ({
+  Bucc: 0,
+  Shad: 1,
+  Hero: 2,
+  DK: 3,
+  NL: 4,
+  SE: 5,
+  Sair: 6,
+  Pally: 7,
+  BS: 8,
+}))();
 
-  return indexOfJobInChar;
+const reverseTierList = invert(tierList);
+
+export const getTier = (job) => tierList[job];
+
+export const getSortedJobsIndexByTier = (tier, player) => {
+  const job = reverseTierList[tier];
+  return player.sortedJobs.indexOf(job);
 };
 
-export const getBSIndex = (player) => player.jobs.indexOf('BS');
+export const getSortedJobsIndexByJob = (job, player) =>
+  player.sortedJobs.indexOf(job);
 
-export const getSEIndex = (player) => player.jobs.indexOf('SE');
+export const createJobPlayerList = (players, sortOrder) => {
+  let sortedPlayers = [...players];
+  // Sort by player choice or by tier
+  if (sortOrder === 'damage') {
+    sortedPlayers = sortedPlayers.map((p) => {
+      const sortedPlayer = {
+        ...p,
+        sortedJobs: [...p.jobs].sort((a, b) => getTier(a) - getTier(b)),
+      };
 
-export const getDkIndex = (player) => player.jobs.indexOf('DK');
+      return {
+        ...sortedPlayer,
+        chosenIndex: -1,
+        sortedLoots: sortedPlayer.sortedJobs.map(
+          (job) => sortedPlayer.loots[sortedPlayer.jobs.indexOf(job)]
+        ),
+      };
+    });
+  } else {
+    sortedPlayers = players.map((p) => ({
+      ...p,
+      chosenIndex: -1,
+      sortedJobs: [...p.jobs],
+      sortedLoots: [...p.loots],
+    }));
+  }
 
-export const getHeroIndex = (player) => player.jobs.indexOf('Hero');
+  const tierListWithPlayers = [];
+  for (let tier = 0; tier < Object.keys(reverseTierList).length; tier += 1) {
+    const ps = sortedPlayers.filter((p) =>
+      p.jobs.includes(reverseTierList[tier])
+    );
+    ps.sort((a, b) => {
+      if (
+        a.isBelt &&
+        a.sortedLoots[getSortedJobsIndexByTier(tier, a)] === 'belt'
+      ) {
+        return -1;
+      }
+      if (
+        b.isBelt &&
+        b.sortedLoots[getSortedJobsIndexByTier(tier, b)] === 'belt'
+      ) {
+        return 1;
+      }
+      return a.jobs.length - b.jobs.length;
+    });
+    tierListWithPlayers[tier] = ps;
+  }
+  console.log(tierListWithPlayers);
 
-export const getPallyIndex = (player) => player.jobs.indexOf('Pally');
-
-export const getBuccIndex = (player) => player.jobs.indexOf('Bucc');
-
-export const getShadIndex = (player) => player.jobs.indexOf('Shad');
-
-export const getNLIndex = (player) => player.jobs.indexOf('NL');
-
-export const getSairIndex = (player) => player.jobs.indexOf('Sair');
+  // Each element is an array of players having that job.
+  return [sortedPlayers, tierListWithPlayers];
+};
