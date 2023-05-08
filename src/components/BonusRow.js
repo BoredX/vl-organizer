@@ -12,10 +12,12 @@ const BonusRow = ({ bonusArray }) => (
 
 BonusRow.propTypes = {
   bonusArray: PropTypes.arrayOf(
-    PropTypes.shape({
-      name: PropTypes.string,
-      boxes: PropTypes.string,
-    })
+    PropTypes.arrayOf(
+      PropTypes.shape({
+        name: PropTypes.string,
+        boxes: PropTypes.string,
+      })
+    )
   ),
 };
 

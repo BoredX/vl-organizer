@@ -9,13 +9,13 @@ import {
   TableRow,
 } from '@mui/material';
 
-const Team = ({ name, players }) => (
+const Party = ({ name, players }) => (
   <TableContainer component={Paper} elevation={10}>
     <Table>
       <TableHead>
         <TableRow>
           <TableCell colSpan={2} align="center">
-            Team {name}
+            Party {name}
           </TableCell>
         </TableRow>
       </TableHead>
@@ -34,7 +34,7 @@ const Team = ({ name, players }) => (
   </TableContainer>
 );
 
-Team.propTypes = {
+Party.propTypes = {
   name: PropTypes.string,
   players: PropTypes.arrayOf(
     PropTypes.shape({
@@ -45,4 +45,4 @@ Team.propTypes = {
   ),
 };
 
-export default Team;
+export default Party;

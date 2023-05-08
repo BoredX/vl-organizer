@@ -1,11 +1,11 @@
 import PropTypes from 'prop-types';
 import { Box } from '@mui/material';
-import Team from './Team';
+import Party from './Party';
 
-const TeamRow = ({ teamMap }) => (
+const PartyRow = ({ teamMap }) => (
   <Box display="flex" gap={4}>
     {Object.keys(teamMap).map((name) => (
-      <Team name={name} players={teamMap[name]} />
+      <Party name={name} players={teamMap[name]} />
     ))}
   </Box>
 );
@@ -16,8 +16,8 @@ const playerType = PropTypes.shape({
   job: PropTypes.string,
 });
 
-TeamRow.propTypes = {
+PartyRow.propTypes = {
   teamMap: PropTypes.objectOf(PropTypes.arrayOf(playerType)),
 };
 
-export default TeamRow;
+export default PartyRow;

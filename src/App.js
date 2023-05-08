@@ -3,11 +3,12 @@ import './index.css';
 import { useEffect, useState } from 'react';
 import PlayerForm from './components/PlayerForm';
 import Roster from './components/Roster';
-import TeamRow from './components/TeamRow';
+import PartyRow from './components/PartyRow';
 import MiscRow from './components/MiscRow';
 import {
   generateBonusArray,
   generateTeam,
+  numSuggestedBs,
   rollLoot,
   rollNx,
 } from './utils/generator';
@@ -169,6 +170,15 @@ function App() {
     setBonusArray(generateBonusArray(players));
   };
 
+  const handleGenerateTeam = () => {
+    const numBsSuggest = numSuggestedBs(players);
+    const numBs = prompt(`Maximum number of bs wanted:`, numBsSuggest);
+    const numBucc = prompt('Minimum number of buccs wanted:', 4);
+    generateTeam(players, numBs, numBucc);
+    // generatePart;
+    // setPlayers();
+  };
+
   return (
     <Box my={7} display="flex" alignItems="center" justifyContent="center">
       <Stack spacing={6}>
@@ -211,11 +221,11 @@ function App() {
         <Button
           variant="contained"
           sx={{ color: 'primary' }}
-          onClick={() => generateTeam(players, setPlayers)}
+          onClick={handleGenerateTeam}
         >
           Generate Team
         </Button>
-        <TeamRow teamMap={teamMap} />
+        <PartyRow teamMap={teamMap} />
         <MiscRow miscMap={miscMap} />
         <Tooltip
           placement="top"
@@ -224,7 +234,7 @@ function App() {
           <Button
             variant="contained"
             color="success"
-            onClick={() => handleGenerateBonus()}
+            onClick={handleGenerateBonus}
           >
             Generate Bonus
           </Button>
