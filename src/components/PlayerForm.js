@@ -1,23 +1,13 @@
 import { Box, Button, Stack, TextField } from '@mui/material';
 import { useEffect, useState } from 'react';
 import playerPropType from './playerPropType';
-import { jobMapping } from '../utils/jobs';
+import { reverseJobNamesMap } from '../utils/jobs';
 
 // split on comma, pipe, slash, space
 const parseDelimiters = (input) => input.split(/,|\||\/|\s+/);
 
-function reverseMap(map) {
-  return Object.entries(map).reduce((acc, [key, values]) => {
-    values.forEach((value) => {
-      acc[value] = key;
-    });
-    return acc;
-  }, {});
-}
-
-const reverseJobMap = reverseMap(jobMapping);
-
-const parseJobs = (jobs) => jobs.map((job) => reverseJobMap[job.toLowerCase()]);
+const parseJobs = (jobs) =>
+  jobs.map((job) => reverseJobNamesMap[job.toLowerCase()]);
 
 const parseSplits = (splits, numChars) => {
   const normalizedSplits =
@@ -132,6 +122,8 @@ const PlayerForm = ({ players, onAddPlayer, editingPlayer, onSubmitEdit }) => {
     if (!isInvalidInput) {
       inputPlayer = {
         ...inputPlayer,
+        sortedJobs: [],
+        sortedLoots: [],
         chosenIndex: -1,
         party: '',
         isShad: false,
@@ -151,7 +143,6 @@ const PlayerForm = ({ players, onAddPlayer, editingPlayer, onSubmitEdit }) => {
       } else {
         onSubmitEdit({
           ...editingPlayer,
-          ...inputPlayer,
           names: inputPlayer.names,
           jobs: inputPlayer.jobs,
           loots: inputPlayer.loots,

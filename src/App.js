@@ -174,7 +174,11 @@ function App() {
     const numBsSuggest = numSuggestedBs(players);
     const numBs = prompt(`Maximum number of bs wanted:`, numBsSuggest);
     const numBucc = prompt('Minimum number of buccs wanted:', 4);
-    generateTeam(players, numBs, numBucc);
+    const sortOrder = prompt(
+      '"player" choice or "damage" preference? (Default player):',
+      'player'
+    );
+    generateTeam(players, numBs, numBucc, sortOrder);
     // generatePart;
     // setPlayers();
   };

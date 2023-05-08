@@ -5,6 +5,8 @@ const playerPropType = {
   names: PropTypes.arrayOf(PropTypes.string),
   jobs: PropTypes.arrayOf(PropTypes.string),
   loots: PropTypes.arrayOf(PropTypes.string),
+  sortedJobs: PropTypes.arrayOf(PropTypes.string),
+  sortedLoots: PropTypes.arrayOf(PropTypes.string),
   chosenIndex: PropTypes.number, // -1 if not chosen which character to run
   party: PropTypes.string,
   isShad: PropTypes.bool,
@@ -12,6 +14,8 @@ const playerPropType = {
   isBucc: PropTypes.bool,
   isSe: PropTypes.bool,
   isWar: PropTypes.bool,
+  isNl: PropTypes.bool,
+  isSair: PropTypes.bool,
   isBonus: PropTypes.bool,
   isBelt: PropTypes.bool,
   isNx: PropTypes.bool,

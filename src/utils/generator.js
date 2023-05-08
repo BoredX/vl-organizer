@@ -1,16 +1,10 @@
-import { shuffle } from 'lodash';
 import { random } from './random';
 import {
   Job,
-  getBSIndex,
-  getBuccIndex,
-  getDkIndex,
-  getHeroIndex,
-  getNLIndex,
-  getPallyIndex,
-  getSEIndex,
-  getShadIndex,
-  indexOfCharAtTier,
+  createJobPlayerList,
+  getTier,
+  getSortedJobsIndexByJob,
+  getSortedJobsIndexByTier,
   jobFlags,
 } from './jobs';
 
@@ -209,35 +203,13 @@ export const numSuggestedBs = (players) => {
   );
 };
 
-export const generateTeam = (players, maxNumBs, minNumBucc) => {
-  let playersChosen = [...players];
-  const bsList = shuffle(players.filter((p) => p.jobs.includes(Job.BS)));
-  const seList = shuffle(players.filter((p) => p.jobs.includes(Job.SE)));
-  const nlList = shuffle(players.filter((p) => p.jobs.includes(Job.NL)));
-  const buccList = shuffle(players.filter((p) => p.jobs.includes(Job.Bucc)));
-  const shadList = shuffle(players.filter((p) => p.jobs.includes(Job.Shad)));
-  const sairList = shuffle(players.filter((p) => p.jobs.includes(Job.Sair)));
-  const warList = shuffle(
-    players.filter((p) => p.jobs.includes(Job.Hero) || p.jobs.includes(Job.DK))
-  );
-  const pallyList = shuffle(players.filter((p) => p.jobs.includes(Job.Pally)));
-  // Each element is an array of players having that job.
-  // Ordered by suggested tier list
-  let lists = [
-    buccList, // 0
-    shadList, // 1
-    warList, // 2
-    nlList, // 3
-    seList, // 4
-    sairList, // 5
-    pallyList, // 6
-    bsList, // 7
-  ];
+export const generateTeam = (inputPlayers, maxNumBs, minNumBucc, sortOrder) => {
+  let [players, tiers] = createJobPlayerList(inputPlayers, sortOrder);
 
   //*              Select classes              *//
 
   // Single char signup only has one character to join on
-  let chosenSingles = players.map((player) => {
+  let singles = players.map((player) => {
     if (player.names.length === 1) {
       const jFlags = jobFlags(player.jobs[0]);
       return { ...player, chosenIndex: 0, ...jFlags };
@@ -245,90 +217,121 @@ export const generateTeam = (players, maxNumBs, minNumBucc) => {
     return player;
   });
 
-  chosenSingles = chosenSingles.filter((p) => p.names.length === 1);
-  lists = updatePool(chosenSingles, lists);
-  playersChosen = updatePlayers(playersChosen, chosenSingles);
+  singles = singles.filter((p) => p.names.length === 1);
+  [tiers, players] = updatePlayersOnAdd(players, tiers, singles);
 
   // people who won belt roll should get priority of belt char
-  let beltLooters = players.filter((p) => p.isBelt);
-  beltLooters = beltLooters.map((p) => updateChar(p, p.loots.indexOf('belt')));
-  lists = updatePool(beltLooters, lists);
-  playersChosen = updatePlayers(playersChosen, beltLooters);
+  let belts = players.filter((p) => p.isBelt);
+  belts = belts.map((p) =>
+    updateCharBySortedIndex(p, p.sortedLoots.indexOf('belt'))
+  );
+  [tiers, players] = updatePlayersOnAdd(players, tiers, belts);
 
   // choose bishops
-  const currentNumBs = playersChosen.filter((p) => p.isBs).length;
+  const currentNumBs = players.filter((p) => p.isBs).length;
   const numMoreBsToGet = maxNumBs - currentNumBs;
-  let chosenBs = numMoreBsToGet > 0 ? lists[7].splice(0, numMoreBsToGet) : [];
-  chosenBs = chosenBs.map((p) => updateChar(p, getBSIndex(p)));
-  lists = updatePool(chosenBs, lists);
-  playersChosen = updatePlayers(playersChosen, chosenBs);
+  let bses =
+    numMoreBsToGet > 0 ? tiers[getTier(Job.BS)].splice(0, numMoreBsToGet) : [];
+  bses = bses.map((p) =>
+    updateCharBySortedIndex(p, getSortedJobsIndexByJob(Job.BS, p))
+  );
+  [tiers, players] = updatePlayersOnAdd(players, tiers, bses);
 
   // choose SE - try to get 2 max
-  const currentNumSe = playersChosen.filter((p) => p.isSe).length;
+  const currentNumSe = players.filter((p) => p.isSe).length;
   const numMoreSeToGet = 2 - currentNumSe;
-  let chosenSe = numMoreSeToGet > 0 ? lists[4].splice(0, numMoreSeToGet) : [];
-  chosenSe = chosenSe.map((p) => updateChar(p, getSEIndex(p)));
-  lists = updatePool(chosenSe, lists);
-  playersChosen = updatePlayers(playersChosen, chosenSe);
+  let ses =
+    numMoreSeToGet > 0 ? tiers[getTier(Job.SE)].splice(0, numMoreSeToGet) : [];
+  ses = ses.map((p) =>
+    updateCharBySortedIndex(p, getSortedJobsIndexByJob(Job.SE, p))
+  );
+  [tiers, players] = updatePlayersOnAdd(players, tiers, ses);
 
-  // Get buccMax first, get more later
-  const currentNumBucc = playersChosen.filter((p) => p.isBucc).length;
+  // Get requested number of buccs first
+  const currentNumBucc = players.filter((p) => p.isBucc).length;
   const numMoreBuccToGet = minNumBucc - currentNumBucc;
-  let chosenBucc =
-    numMoreBuccToGet > 0 ? lists[0].splice(0, numMoreBuccToGet) : [];
-  chosenBucc = chosenBucc.map((p) => updateChar(p, getBuccIndex(p)));
-  lists = updatePool(chosenBucc, lists);
-  playersChosen = updatePlayers(playersChosen, chosenBucc);
-
+  let buccs =
+    numMoreBuccToGet > 0
+      ? tiers[getTier(Job.Bucc)].splice(0, numMoreBuccToGet)
+      : [];
+  buccs = buccs.map((p) =>
+    updateCharBySortedIndex(p, getSortedJobsIndexByJob(Job.Bucc, p))
+  );
+  [tiers, players] = updatePlayersOnAdd(players, tiers, buccs);
   // Choose 2 warriors
-  const currentNumWar = playersChosen.filter((p) => p.isWar).length;
+  const currentNumWar = players.filter((p) => p.isWar).length;
   let numMoreWarToGet = 2 - currentNumWar;
-  // pref heroes and dk
-  let chosenWar =
-    numMoreWarToGet > 0 ? lists[2].splice(0, numMoreWarToGet) : [];
-  chosenWar = chosenWar.map((p) => {
-    const index = getHeroIndex(p) >= 0 ? getHeroIndex(p) : getDkIndex(p);
-    return updateChar(p, index);
-  });
-  lists = updatePool(chosenWar, lists);
-  playersChosen = updatePlayers(playersChosen, chosenWar);
+  // pref hero > dk > pally
+  let heroes =
+    numMoreWarToGet > 0
+      ? tiers[getTier(Job.Hero)].splice(0, numMoreWarToGet)
+      : [];
+  heroes = heroes.map((p) =>
+    updateCharBySortedIndex(p, getSortedJobsIndexByJob(Job.Hero, p))
+  );
+  [tiers, players] = updatePlayersOnAdd(players, tiers, heroes);
 
-  if (chosenWar.length < numMoreWarToGet) {
-    numMoreWarToGet -= chosenWar.length;
-    chosenWar = numMoreWarToGet > 0 ? lists[6].splice(0, numMoreWarToGet) : [];
-    chosenWar = chosenWar.map((p) => updateChar(p, getPallyIndex(p)));
-    lists = updatePool(chosenWar, lists);
-    playersChosen = updatePlayers(playersChosen, chosenWar);
+  let dks = [];
+  if (heroes.length < numMoreWarToGet) {
+    numMoreWarToGet -= heroes.length;
+    dks =
+      numMoreWarToGet > 0
+        ? tiers[getTier(Job.DK)].splice(0, numMoreWarToGet)
+        : [];
+    dks = dks.map((p) =>
+      updateCharBySortedIndex(p, getSortedJobsIndexByJob(Job.DK, p))
+    );
+    [tiers, players] = updatePlayersOnAdd(players, tiers, dks);
+  }
+
+  let pallies = [];
+  if (dks.length < numMoreWarToGet) {
+    numMoreWarToGet -= dks.length;
+    pallies =
+      numMoreWarToGet > 0
+        ? tiers[getTier(Job.Pally)].splice(0, numMoreWarToGet)
+        : [];
+    pallies = pallies.map((p) =>
+      updateCharBySortedIndex(p, getSortedJobsIndexByJob(Job.Pally, p))
+    );
+    [tiers, players] = updatePlayersOnAdd(players, tiers, pallies);
   }
 
   // Try to get 4 NL max
-  const currentNumNL = playersChosen.filter((p) => p.isNL).length;
+  const currentNumNL = players.filter((p) => p.isNl).length;
   const numMoreNLToGet = 4 - currentNumNL;
-  let chosenNL = numMoreNLToGet > 0 ? lists[3].splice(0, numMoreNLToGet) : [];
-  chosenNL = chosenNL.map((p) => updateChar(p, getNLIndex(p)));
-  lists = updatePool(chosenNL, lists);
-  playersChosen = updatePlayers(playersChosen, chosenNL);
+  let nls =
+    numMoreNLToGet > 0 ? tiers[getTier(Job.NL)].splice(0, numMoreNLToGet) : [];
+  nls = nls.map((p) =>
+    updateCharBySortedIndex(p, getSortedJobsIndexByJob(Job.NL, p))
+  );
+  [tiers, players] = updatePlayersOnAdd(players, tiers, nls);
 
-  // Fill shad pt
-  const currentNumShad = playersChosen.filter((p) => p.isShad).length;
+  // Fill shad pt with 6
+  const currentNumShad = players.filter((p) => p.isShad).length;
   const numMoreShadToGet = 6 - currentNumShad;
-  let chosenShad =
-    numMoreShadToGet > 0 ? lists[1].splice(0, numMoreShadToGet) : [];
-  chosenShad = chosenShad.map((p) => updateChar(p, getShadIndex(p)));
-  lists = updatePool(chosenShad, lists);
-  playersChosen = updatePlayers(playersChosen, chosenShad);
+  let shads =
+    numMoreShadToGet > 0
+      ? tiers[getTier(Job.Shad)].splice(0, numMoreShadToGet)
+      : [];
+  shads = shads.map((p) =>
+    updateCharBySortedIndex(p, getSortedJobsIndexByJob(Job.Shad, p))
+  );
+  [tiers, players] = updatePlayersOnAdd(players, tiers, shads);
 
   // Fill by tiers
-  for (let tier = 0; tier < lists.length; tier += 1) {
-    let ps = lists[tier].map((p) => updateChar(p, indexOfCharAtTier(tier)));
-    ps = updatePool(ps, lists);
-    playersChosen = updatePlayers(playersChosen, ps);
+  for (let tier = 0; tier < tiers.length; tier += 1) {
+    const ps = tiers[tier].map((p) =>
+      updateCharBySortedIndex(p, getSortedJobsIndexByTier(tier, p))
+    );
+    [tiers, players] = updatePlayersOnAdd(players, tiers, ps);
   }
-
-  return playersChosen;
+  console.log(tiers);
+  console.log(players);
+  return players;
 };
 
-const updatePool = (players, classList) => {
+const updateCharPool = (players, classList) => {
   const newList = [...classList];
   for (const p of players) {
     for (let i = 0; i < classList.length; i += 1) {
@@ -344,8 +347,19 @@ const updatePlayers = (players, chosenPlayers) =>
     return { ...p, ...updatedP };
   });
 
-const updateChar = (player, index) => ({
-  ...player,
-  chosenIndex: index,
-  ...jobFlags(player.jobs[index]),
-});
+const updatePlayersOnAdd = (currentPlayers, tiers, chosenPlayers) => {
+  const updatedTiers = updateCharPool(chosenPlayers, tiers);
+  const updatedPlayers = updatePlayers(currentPlayers, chosenPlayers);
+  return [updatedTiers, updatedPlayers];
+};
+
+const updateCharBySortedIndex = (player, sortedIndex) => {
+  const job = player.sortedJobs[sortedIndex];
+  const originalIndex = player.jobs.findIndex((j) => j === job);
+
+  return {
+    ...player,
+    chosenIndex: originalIndex,
+    ...jobFlags(player.jobs[originalIndex]),
+  };
+};
