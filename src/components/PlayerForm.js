@@ -1,6 +1,7 @@
 import { Box, Button, Stack, TextField } from '@mui/material';
 import { useEffect, useState } from 'react';
 import playerPropType from './playerPropType';
+import { jobMapping } from '../utils/jobs';
 
 // split on comma, pipe, slash, space
 const parseDelimiters = (input) => input.split(/,|\||\/|\s+/);
@@ -13,18 +14,6 @@ function reverseMap(map) {
     return acc;
   }, {});
 }
-
-const jobMapping = {
-  NL: ['nl'],
-  Shad: ['shadower', 'shad'],
-  DK: ['dk', 'drk', 'dark'],
-  Pally: ['pally', 'paly'],
-  Hero: ['hero'],
-  Bucc: ['bucc', 'buc', 'buccaneer'],
-  Sair: ['sair'],
-  SE: ['mm', 'bm', 'se'],
-  BS: ['bs', 'bishop', 'bish', 'bis'],
-};
 
 const reverseJobMap = reverseMap(jobMapping);
 
@@ -127,40 +116,45 @@ const PlayerForm = ({ players, onAddPlayer, editingPlayer, onSubmitEdit }) => {
     if (editingPlayer !== null) {
       setIsVerticalInput(true);
     }
-    let player = isVerticalInput
+    let inputPlayer = isVerticalInput
       ? createPlayerFromVerticalInput(input)
       : createPlayerFromHorizontalInput(input);
     const isInvalidInput =
-      player.jobs === undefined ||
-      player.jobs.length !== player.names.length ||
-      player.loots.length !== player.names.length;
+      inputPlayer.jobs === undefined ||
+      inputPlayer.jobs.length !== inputPlayer.names.length ||
+      inputPlayer.loots.length !== inputPlayer.names.length;
     setError(isInvalidInput);
     if (isInvalidInput) {
-      console.log('igns', player.names);
-      console.log('jobs', player.jobs);
-      console.log('splits', player.loots);
+      console.log('igns', inputPlayer.names);
+      console.log('jobs', inputPlayer.jobs);
+      console.log('splits', inputPlayer.loots);
     }
     if (!isInvalidInput) {
-      player = {
-        ...player,
+      inputPlayer = {
+        ...inputPlayer,
         chosenIndex: -1,
-        team: '',
+        party: '',
         isShad: false,
         isBs: false,
         isBucc: false,
+        isSe: false,
+        isWar: false,
+        isNl: false,
+        isSair: false,
         isBonus: false,
         isBelt: false,
         isNx: false,
         boxes: [],
       };
       if (editingPlayer === null) {
-        onAddPlayer([...players, player]);
+        onAddPlayer([...players, inputPlayer]);
       } else {
         onSubmitEdit({
           ...editingPlayer,
-          names: player.names,
-          jobs: player.jobs,
-          loots: player.loots,
+          ...inputPlayer,
+          names: inputPlayer.names,
+          jobs: inputPlayer.jobs,
+          loots: inputPlayer.loots,
         });
       }
       setInput('');
