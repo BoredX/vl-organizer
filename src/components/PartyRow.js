@@ -5,7 +5,7 @@ import Party from './Party';
 const PartyRow = ({ teamMap }) => (
   <Box display="flex" gap={4}>
     {Object.keys(teamMap).map((name) => (
-      <Party name={name} players={teamMap[name]} />
+      <Party key={name} name={name} players={teamMap[name]} />
     ))}
   </Box>
 );

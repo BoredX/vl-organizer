@@ -5,6 +5,8 @@ import PlayerForm from './components/PlayerForm';
 import Roster from './components/Roster';
 import PartyRow from './components/PartyRow';
 import MiscRow from './components/MiscRow';
+import BonusRow from './components/BonusRow';
+import TeamForm from './components/TeamForm';
 import {
   generateBonusArray,
   generateTeam,
@@ -12,7 +14,6 @@ import {
   rollLoot,
   rollNx,
 } from './utils/generator';
-import BonusRow from './components/BonusRow';
 
 const teamMap = {
   A: [
@@ -78,8 +79,6 @@ function App() {
     return savedPlayers !== null ? JSON.parse(savedPlayers) : [];
   });
   const [editingPlayer, setEditingPlayer] = useState(null);
-  // const [shadParty, setShadParty] = useState(null);
-  // const [beltLooters, setBeltLooters] = useState([]);
   const [bonusArray, setBonusArray] = useState([[], [], []]);
 
   useEffect(() => {
@@ -170,14 +169,7 @@ function App() {
     setBonusArray(generateBonusArray(players));
   };
 
-  const handleGenerateTeam = () => {
-    const numBsSuggest = numSuggestedBs(players);
-    const numBs = prompt(`Maximum number of bs wanted:`, numBsSuggest);
-    const numBucc = prompt('Minimum number of buccs wanted:', 4);
-    const sortOrder = prompt(
-      '"player" choice or "damage" preference? (Default player):',
-      'player'
-    );
+  const handleGenerateTeam = (numBs, numBucc, sortOrder) => {
     generateTeam(players, numBs, numBucc, sortOrder);
     // generatePart;
     // setPlayers();
@@ -222,13 +214,10 @@ function App() {
           onToggleBonus={handleToggleBonus}
           onToggleNx={handleToggleNx}
         />
-        <Button
-          variant="contained"
-          sx={{ color: 'primary' }}
-          onClick={handleGenerateTeam}
-        >
-          Generate Team
-        </Button>
+        <TeamForm
+          numBsSuggest={numSuggestedBs(players)}
+          onGenerateTeam={handleGenerateTeam}
+        />
         <PartyRow teamMap={teamMap} />
         <MiscRow miscMap={miscMap} />
         <Tooltip
