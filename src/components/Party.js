@@ -8,6 +8,7 @@ import {
   TableHead,
   TableRow,
 } from '@mui/material';
+import playerPropType from './playerPropType';
 
 const Party = ({ party }) => (
   <TableContainer component={Paper} elevation={10}>
@@ -37,7 +38,7 @@ const Party = ({ party }) => (
 Party.propTypes = {
   party: PropTypes.shape({
     name: PropTypes.string,
-    players: PropTypes.arrayOf(PropTypes.object),
+    players: PropTypes.arrayOf(PropTypes.shape(playerPropType)),
   }),
 };
 

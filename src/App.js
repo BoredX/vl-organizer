@@ -1,6 +1,6 @@
 import { Box, Stack, Button, Typography, Tooltip } from '@mui/material';
 import './index.css';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import PlayerForm from './components/PlayerForm';
 import Roster from './components/Roster';
 import PartyRow from './components/PartyRow';
@@ -40,8 +40,17 @@ function App() {
     localStorage.setItem('parties', JSON.stringify(partyArray));
   }, [players, bonusArray, partyArray]);
 
+  const inputRef = useRef(null);
+
   const handleStartEdit = (pl) => {
     setEditingPlayer(pl);
+    inputRef.current.focus();
+    const valueLength = inputRef.current.value.length;
+    inputRef.current.setSelectionRange(valueLength, valueLength);
+    inputRef.current.scrollIntoView({
+      behavior: 'smooth',
+      block: 'end',
+    });
   };
 
   const handleNewPlayer = (ps) => {
@@ -147,6 +156,7 @@ function App() {
               players={players}
               onAddPlayer={handleNewPlayer}
               editingPlayer={editingPlayer}
+              inputRef={inputRef}
               onSubmitEdit={handleUpdatePlayer}
             />
           </Box>

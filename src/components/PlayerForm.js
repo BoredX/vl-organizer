@@ -1,5 +1,6 @@
 import { Box, Button, Stack, TextField } from '@mui/material';
 import { useEffect, useState } from 'react';
+import PropTypes from 'prop-types';
 import playerPropType from './playerPropType';
 import { reverseJobNamesMap } from '../utils/jobs';
 
@@ -82,7 +83,13 @@ const formatPlayer = (p) => {
   return `${names}\n${jobs}\n${loots}`;
 };
 
-const PlayerForm = ({ players, onAddPlayer, editingPlayer, onSubmitEdit }) => {
+const PlayerForm = ({
+  players,
+  onAddPlayer,
+  editingPlayer,
+  onSubmitEdit,
+  inputRef,
+}) => {
   const [input, setInput] = useState();
   const [error, setError] = useState(false);
   const [isVerticalInput, setIsVerticalInput] = useState(true);
@@ -156,9 +163,14 @@ const PlayerForm = ({ players, onAddPlayer, editingPlayer, onSubmitEdit }) => {
   return (
     <Stack spacing={3} alignItems="center">
       <TextField
+        id="playerInput"
+        inputRef={inputRef}
         multiline
         minRows={4}
         style={{ width: 500 }}
+        InputLabelProps={{
+          shrink: input !== '',
+        }}
         label={editingPlayer === null ? 'Add player' : 'Edit player'}
         placeholder={
           isVerticalInput
@@ -193,6 +205,15 @@ const PlayerForm = ({ players, onAddPlayer, editingPlayer, onSubmitEdit }) => {
   );
 };
 
-PlayerForm.propTypes = playerPropType;
+PlayerForm.propTypes = {
+  players: PropTypes.arrayOf(PropTypes.shape(playerPropType)),
+  onAddPlayer: PropTypes.func,
+  editingPlayer: PropTypes.shape(playerPropType),
+  onSubmitEdit: PropTypes.func,
+  inputRef: PropTypes.oneOfType([
+    PropTypes.func,
+    PropTypes.shape({ current: PropTypes.any }),
+  ]),
+};
 
 export default PlayerForm;
