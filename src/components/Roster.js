@@ -10,6 +10,7 @@ import {
   Stack,
   ToggleButton,
   ToggleButtonGroup,
+  Box,
 } from '@mui/material';
 import playerPropType from './playerPropType';
 
@@ -40,7 +41,18 @@ const Roster = ({
           >
             <TableCell>{player.id + 1}</TableCell>
             <TableCell>{player.names.join(', ')}</TableCell>
-            <TableCell>{player.jobs.join(', ')}</TableCell>
+            <TableCell>
+              {player.jobs.map((job, i) => {
+                const file = job.toLowerCase();
+                return (
+                  <img
+                    src={`/${file}.png`}
+                    alt={i < player.jobs.length - 1 ? `${job},` : job}
+                    style={{ marginRight: i < players.length - 1 ? '4px' : 0 }}
+                  />
+                );
+              })}
+            </TableCell>
             <TableCell>{player.loots.join(', ')}</TableCell>
             <TableCell>
               <Stack direction="row" spacing={1}>
