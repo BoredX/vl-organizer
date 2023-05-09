@@ -205,6 +205,7 @@ export const numSuggestedBs = (players) => {
 
 export const generateTeam = (inputPlayers, maxNumBs, minNumBucc, sortOrder) => {
   let [players, tiers] = createJobPlayerList(inputPlayers, sortOrder);
+  console.log(sortOrder);
 
   //*              Select classes              *//
 

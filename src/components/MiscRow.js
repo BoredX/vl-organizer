@@ -5,7 +5,7 @@ import MiscTable from './MiscTable';
 const MiscRow = ({ miscMap }) => (
   <Box display="flex" gap={4}>
     {Object.keys(miscMap).map((name) => (
-      <MiscTable name={name} values={miscMap[name]} />
+      <MiscTable key={name} name={name} values={miscMap[name]} />
     ))}
   </Box>
 );

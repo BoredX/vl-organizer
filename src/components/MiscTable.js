@@ -37,7 +37,7 @@ const MiscTable = ({ name, values }) => (
 MiscTable.propTypes = {
   name: PropTypes.string,
   values: PropTypes.arrayOf(
-    PropTypes.shape({ id: PropTypes.string, name: PropTypes.string })
+    PropTypes.shape({ id: PropTypes.number, name: PropTypes.string })
   ),
 };
 
