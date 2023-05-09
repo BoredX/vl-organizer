@@ -1,4 +1,4 @@
-import { times } from 'lodash';
+import { shuffle, times } from 'lodash';
 import { random } from './random';
 import {
   Job,
@@ -186,7 +186,6 @@ export const numSuggestedBs = (players) => {
 
 export const generateTeam = (inputPlayers, maxNumBs, minNumBucc, sortOrder) => {
   let [players, tiers] = createJobPlayerList(inputPlayers, sortOrder);
-
   //*              Select classes              *//
 
   // Single char signup only has one character to join on
@@ -216,6 +215,7 @@ export const generateTeam = (inputPlayers, maxNumBs, minNumBucc, sortOrder) => {
   bses = bses.map((p) =>
     updateCharBySortedIndex(p, getSortedJobsIndexByJob(Job.BS, p))
   );
+
   [tiers, players] = updatePlayersOnAdd(players, tiers, bses);
 
   // choose SE - try to get 2 max
@@ -336,7 +336,6 @@ const updatePlayersOnAdd = (currentPlayers, tiers, chosenPlayers) => {
 const updateCharBySortedIndex = (player, sortedIndex) => {
   const job = player.sortedJobs[sortedIndex];
   const originalIndex = player.jobs.findIndex((j) => j === job);
-
   return {
     ...player,
     chosenIndex: originalIndex,
@@ -347,17 +346,17 @@ const updateCharBySortedIndex = (player, sortedIndex) => {
 const generateParties = (players) => {
   if (players.length < 12) return [];
   const parties = times(5, () => []);
-  const bs = players.filter((p) => p.isBs);
+  const bs = shuffle(players.filter((p) => p.isBs));
   for (let i = 0; i < bs.length; i += 1) {
     parties[i].push(bs[i]);
   }
   let filled = parties.map((team) => team.length);
-  const se = players.filter((p) => p.isSe);
+  const se = shuffle(players.filter((p) => p.isSe));
   for (let i = 0; i < se.length; i += 1) {
     parties[i].push(se[i]);
   }
 
-  const nl = players.filter((p) => p.isNl);
+  const nl = shuffle(players.filter((p) => p.isNl));
   for (let i = 0; i < nl.length; i += 1) {
     filled = parties.map((team) => team.length);
     // fill up to 3 parties of NLs lmao
@@ -372,22 +371,24 @@ const generateParties = (players) => {
     }
   }
 
-  const buccs = players.filter((p) => p.isBucc);
-  const sairs = players.filter((p) => p.isSair);
-  const wars = players
-    .filter((p) => p.isWar)
-    .sort((a, b) => {
-      if (
-        a.jobs[a.chosenIndex] === Job.DK &&
-        (b.jobs[b.chosenIndex] === Job.Hero ||
-          b.jobs[b.chosenIndex] === Job.Pally)
-      ) {
-        return -1;
-      }
+  const buccs = shuffle(players.filter((p) => p.isBucc));
+  const sairs = shuffle(players.filter((p) => p.isSair));
+  const shads = shuffle(players.filter((p) => p.isShad));
+  const wars = shuffle(
+    players
+      .filter((p) => p.isWar)
+      .sort((a, b) => {
+        if (
+          a.jobs[a.chosenIndex] === Job.DK &&
+          (b.jobs[b.chosenIndex] === Job.Hero ||
+            b.jobs[b.chosenIndex] === Job.Pally)
+        ) {
+          return -1;
+        }
 
-      return 1;
-    });
-  const shads = players.filter((p) => p.isShad);
+        return 1;
+      })
+  );
 
   for (let i = 0; i < 5; i += 1) {
     if (
@@ -405,6 +406,20 @@ const generateParties = (players) => {
       parties[i] = fillWithShads(parties[i], shads);
     }
   }
+  const numMembers = parties.map((p) => p.length);
+  const lastPartyIndex = numMembers.lastIndexOf(0);
+  const shadPartyIndex = lastPartyIndex > 0 ? lastPartyIndex - 1 : 4;
+
+  parties[shadPartyIndex] = parties[shadPartyIndex].map((p) =>
+    p.isShad ? { ...p, isShadParty: p.isShad } : p
+  );
+
+  parties[shadPartyIndex].forEach((shds) => {
+    const player = players.find((p) => shds.id === p.id);
+    if (player.isShad) {
+      player.isShadParty = true;
+    }
+  });
 
   return parties;
 };
@@ -415,7 +430,12 @@ const fillPartyWithOneWarSairRestBuccs = (party, sairs, wars, buccs) => {
     let slotsLeft = 6 - party.length;
     let numSairs = sairs.length;
     let numWars = wars.length;
-    while (slotsLeft > 3 && (numSairs > 0 || numWars > 0)) {
+    const numWarAndSairInParty = party.filter((p) => p.isWar || p.isSair);
+    while (
+      slotsLeft >= 2 &&
+      numWarAndSairInParty < 2 &&
+      (numSairs > 0 || numWars > 0)
+    ) {
       // fill a sair/war first - 2 max per party
       newParty = pickOneSairOrWar(newParty, sairs, wars);
       numSairs = sairs.length;
@@ -454,13 +474,35 @@ const fillWithShads = (party, shads) => {
   return [...party, ...shads.splice(0, slotsLeft)];
 };
 
-export const mapParties = (parties) =>
-  parties.map((party, i) => {
-    const order = party.sort((a, b) => getDisplayOrder(a) - getDisplayOrder(b));
+export const mapParties = (players, parties) => {
+  const plyrs = [...players];
+  const pts = parties.map((party, i) => {
+    party.sort((a, b) => getDisplayOrder(a) - getDisplayOrder(b));
+    const playersWithPartyIndex = party.map((p, playerIndex) => ({
+      ...p,
+      partyIndex: playerIndex,
+    }));
+
+    playersWithPartyIndex.forEach((pi, ind) => {
+      const player = plyrs.find((p) => p.id === pi.id);
+      player.partyIndex = ind;
+    });
     return {
       name: String.fromCharCode(i + 'A'.charCodeAt(0)),
-      players: order,
+      players: playersWithPartyIndex,
     };
   });
+  return [plyrs, pts];
+};
 
-export const mapMiscRow = (players) => {};
+export const mapPartyOrder = (players) => {
+  if (players.length < 12) return [];
+  // res, tl, smoke, belt tables
+  const tables = times(4, () => []);
+  tables[0] = shuffle(players.filter((p) => p.isBs));
+  tables[1] = shuffle(players.filter((p) => p.isBucc));
+  tables[2] = players.filter((p) => p.isShadParty);
+  tables[2] = tables[2].sort((a, b) => a.partyIndex - b.partyIndex);
+  tables[3] = players.filter((p) => p.isBelt);
+  return tables;
+};
