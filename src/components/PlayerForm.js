@@ -126,6 +126,7 @@ const PlayerForm = ({ players, onAddPlayer, editingPlayer, onSubmitEdit }) => {
         sortedLoots: [],
         chosenIndex: -1,
         party: '',
+        partyIndex: -1,
         isShad: false,
         isBs: false,
         isBucc: false,

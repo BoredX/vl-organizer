@@ -17,10 +17,10 @@ import {
 import { range } from 'lodash';
 import { useState } from 'react';
 
-const TeamForm = ({ numBsSuggest, onGenerateTeam }) => {
+const TeamForm = ({ bsSigned, buccSigned, numBsSuggest, onGenerateTeam }) => {
   const [sortOrder, setSortOrder] = useState('player');
-  const [numBs, setNumBs] = useState('');
-  const [numBucc, setNumBucc] = useState('');
+  const [numBs, setNumBs] = useState(numBsSuggest);
+  const [numBucc, setNumBucc] = useState(4);
 
   const handleSortChange = (event) => {
     setSortOrder(event.target.value);
@@ -47,13 +47,8 @@ const TeamForm = ({ numBsSuggest, onGenerateTeam }) => {
           >
             <FormControl>
               <InputLabel>BS</InputLabel>
-              <Select
-                value={numBs}
-                defaultValue={numBsSuggest}
-                onChange={handleBsChange}
-                label="BS"
-              >
-                {range(1, 7).map((x) => (
+              <Select value={numBs} onChange={handleBsChange} label="BS">
+                {range(1, Math.min(bsSigned + 1, 6)).map((x) => (
                   <MenuItem key={x} value={x}>
                     {x}
                   </MenuItem>
@@ -64,7 +59,7 @@ const TeamForm = ({ numBsSuggest, onGenerateTeam }) => {
             <FormControl>
               <InputLabel>Buccs</InputLabel>
               <Select label="Buccs" value={numBucc} onChange={handleBuccChange}>
-                {range(1, 9).map((x) => (
+                {range(1, Math.min(buccSigned + 1, 6)).map((x) => (
                   <MenuItem key={x} value={x}>
                     {x}
                   </MenuItem>
@@ -101,13 +96,15 @@ const TeamForm = ({ numBsSuggest, onGenerateTeam }) => {
         sx={{ color: 'primary' }}
         onClick={() => onGenerateTeam(numBs, numBucc, sortOrder)}
       >
-        Generate Team
+        Assign Parties
       </Button>
     </Box>
   );
 };
 
 TeamForm.propTypes = {
+  bsSigned: PropTypes.number,
+  buccSigned: PropTypes.number,
   numBsSuggest: PropTypes.number,
   onGenerateTeam: PropTypes.func,
 };

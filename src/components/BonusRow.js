@@ -4,9 +4,12 @@ import BonusTable from './BonusTable';
 
 const BonusRow = ({ bonusArray }) => (
   <Box display="flex" gap={4}>
-    <BonusTable bonusPlayers={bonusArray[0]} />
-    <BonusTable bonusPlayers={bonusArray[1]} />
-    <BonusTable bonusPlayers={bonusArray[2]} />
+    {bonusArray.map((letter, i) => {
+      if (letter.length === 0) {
+        return null;
+      }
+      return <BonusTable key={i} bonusPlayers={bonusArray[i]} />;
+    })}
   </Box>
 );
 

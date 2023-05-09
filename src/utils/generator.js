@@ -1,3 +1,4 @@
+import { times } from 'lodash';
 import { random } from './random';
 import {
   Job,
@@ -6,6 +7,7 @@ import {
   getSortedJobsIndexByJob,
   getSortedJobsIndexByTier,
   jobFlags,
+  getDisplayOrder,
 } from './jobs';
 
 const beltLooterPlayerIdMap = (beltLooters) =>
@@ -163,34 +165,13 @@ export const generateBonusArray = (players) => {
 
   const result = [];
   result.push(
-    aLooters.map((p) => {
-      if (p.chosenIndex < 0) {
-        // todo remove
-        p.chosenIndex = 0;
-      }
-
-      return { boxes: p.boxes, name: p.names[p.chosenIndex] };
-    })
+    aLooters.map((p) => ({ boxes: p.boxes, name: p.names[p.chosenIndex] }))
   );
   result.push(
-    bLooters.map((p) => {
-      if (p.chosenIndex < 0) {
-        // todo remove
-        p.chosenIndex = 0;
-      }
-
-      return { boxes: p.boxes, name: p.names[p.chosenIndex] };
-    })
+    bLooters.map((p) => ({ boxes: p.boxes, name: p.names[p.chosenIndex] }))
   );
   result.push(
-    cLooters.map((p) => {
-      if (p.chosenIndex < 0) {
-        // todo remove
-        p.chosenIndex = 0;
-      }
-
-      return { boxes: p.boxes, name: p.names[p.chosenIndex] };
-    })
+    cLooters.map((p) => ({ boxes: p.boxes, name: p.names[p.chosenIndex] }))
   );
   return result;
 };
@@ -205,7 +186,6 @@ export const numSuggestedBs = (players) => {
 
 export const generateTeam = (inputPlayers, maxNumBs, minNumBucc, sortOrder) => {
   let [players, tiers] = createJobPlayerList(inputPlayers, sortOrder);
-  console.log(sortOrder);
 
   //*              Select classes              *//
 
@@ -327,9 +307,8 @@ export const generateTeam = (inputPlayers, maxNumBs, minNumBucc, sortOrder) => {
     );
     [tiers, players] = updatePlayersOnAdd(players, tiers, ps);
   }
-  console.log(tiers);
-  console.log(players);
-  return players;
+  const parties = generateParties(players);
+  return [players, parties];
 };
 
 const updateCharPool = (players, classList) => {
@@ -364,3 +343,124 @@ const updateCharBySortedIndex = (player, sortedIndex) => {
     ...jobFlags(player.jobs[originalIndex]),
   };
 };
+
+const generateParties = (players) => {
+  if (players.length < 12) return [];
+  const parties = times(5, () => []);
+  const bs = players.filter((p) => p.isBs);
+  for (let i = 0; i < bs.length; i += 1) {
+    parties[i].push(bs[i]);
+  }
+  let filled = parties.map((team) => team.length);
+  const se = players.filter((p) => p.isSe);
+  for (let i = 0; i < se.length; i += 1) {
+    parties[i].push(se[i]);
+  }
+
+  const nl = players.filter((p) => p.isNl);
+  for (let i = 0; i < nl.length; i += 1) {
+    filled = parties.map((team) => team.length);
+    // fill up to 3 parties of NLs lmao
+    if (filled[0] < 6) {
+      parties[0].push(nl[i]);
+    } else if (filled[1] < 6) {
+      parties[1].push(nl[i]);
+    } else if (filled[2] < 6) {
+      parties[2].push(nl[i]);
+    } else if (filled[3] < 6) {
+      parties[3].push(nl[i]);
+    }
+  }
+
+  const buccs = players.filter((p) => p.isBucc);
+  const sairs = players.filter((p) => p.isSair);
+  const wars = players
+    .filter((p) => p.isWar)
+    .sort((a, b) => {
+      if (
+        a.jobs[a.chosenIndex] === Job.DK &&
+        (b.jobs[b.chosenIndex] === Job.Hero ||
+          b.jobs[b.chosenIndex] === Job.Pally)
+      ) {
+        return -1;
+      }
+
+      return 1;
+    });
+  const shads = players.filter((p) => p.isShad);
+
+  for (let i = 0; i < 5; i += 1) {
+    if (
+      sairs.length > 0 ||
+      wars.length > 0 ||
+      buccs.length > 0 ||
+      shads.length > 0
+    ) {
+      parties[i] = fillPartyWithOneWarSairRestBuccs(
+        parties[i],
+        sairs,
+        wars,
+        buccs
+      );
+      parties[i] = fillWithShads(parties[i], shads);
+    }
+  }
+
+  return parties;
+};
+
+const fillPartyWithOneWarSairRestBuccs = (party, sairs, wars, buccs) => {
+  let newParty = [...party];
+  if (party.length < 6) {
+    let slotsLeft = 6 - party.length;
+    let numSairs = sairs.length;
+    let numWars = wars.length;
+    while (slotsLeft > 3 && (numSairs > 0 || numWars > 0)) {
+      // fill a sair/war first - 2 max per party
+      newParty = pickOneSairOrWar(newParty, sairs, wars);
+      numSairs = sairs.length;
+      numWars = wars.length;
+      slotsLeft -= 1;
+    }
+
+    // Fill rest with buccs
+    if (buccs.length > 0) {
+      const fillBuccs = buccs.splice(0, slotsLeft);
+      newParty = [...newParty, ...fillBuccs];
+    }
+  }
+  return newParty;
+};
+
+const pickOneSairOrWar = (party, sairs, wars) => {
+  // const slotsLeft = 6 - party.length;
+  const numSairs = sairs.length;
+  const numWars = wars.length;
+  let newParty = [...party];
+  if (numSairs > 0) {
+    // const numFillSairs = Math.min(slotsLeft - 1, numSairs); // slotsleft-1 for bucc
+    const fillSairs = sairs.splice(0, 1);
+    newParty = [...newParty, ...fillSairs];
+  } else if (numWars > 0) {
+    // const numFillWars = Math.min(slotsLeft - 1, numWars); // slotsleft-1 for bucc
+    const fillWars = wars.splice(0, 1);
+    newParty = [...newParty, ...fillWars];
+  }
+  return newParty;
+};
+
+const fillWithShads = (party, shads) => {
+  const slotsLeft = 6 - party.length;
+  return [...party, ...shads.splice(0, slotsLeft)];
+};
+
+export const mapParties = (parties) =>
+  parties.map((party, i) => {
+    const order = party.sort((a, b) => getDisplayOrder(a) - getDisplayOrder(b));
+    return {
+      name: String.fromCharCode(i + 'A'.charCodeAt(0)),
+      players: order,
+    };
+  });
+
+export const mapMiscRow = (players) => {};

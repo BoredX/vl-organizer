@@ -2,22 +2,24 @@ import PropTypes from 'prop-types';
 import { Box } from '@mui/material';
 import Party from './Party';
 
-const PartyRow = ({ teamMap }) => (
+const PartyRow = ({ parties }) => (
   <Box display="flex" gap={4}>
-    {Object.keys(teamMap).map((name) => (
-      <Party key={name} name={name} players={teamMap[name]} />
-    ))}
+    {parties.map((party) => {
+      if (party.players.length === 0) {
+        return null;
+      }
+      return <Party key={party.name} party={party} />;
+    })}
   </Box>
 );
 
-const playerType = PropTypes.shape({
-  id: PropTypes.number,
-  name: PropTypes.string,
-  job: PropTypes.string,
-});
-
 PartyRow.propTypes = {
-  teamMap: PropTypes.objectOf(PropTypes.arrayOf(playerType)),
+  parties: PropTypes.arrayOf(
+    PropTypes.shape({
+      name: PropTypes.string,
+      players: PropTypes.arrayOf(PropTypes.object),
+    })
+  ),
 };
 
 export default PartyRow;

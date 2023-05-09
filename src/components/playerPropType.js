@@ -9,6 +9,7 @@ const playerPropType = {
   sortedLoots: PropTypes.arrayOf(PropTypes.string),
   chosenIndex: PropTypes.number, // -1 if not chosen which character to run
   party: PropTypes.string,
+  partyIndex: PropTypes.number,
   isShad: PropTypes.bool,
   isBs: PropTypes.bool,
   isBucc: PropTypes.bool,
