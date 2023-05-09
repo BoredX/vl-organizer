@@ -10,68 +10,13 @@ import TeamForm from './components/TeamForm';
 import {
   generateBonusArray,
   generateTeam,
+  mapMiscRow,
+  mapParties,
   numSuggestedBs,
   rollLoot,
   rollNx,
 } from './utils/generator';
-
-const teamMap = {
-  A: [
-    { id: 1, name: 'John', job: 'Developer' },
-    { id: 2, name: 'Sarah', job: 'Designer' },
-  ],
-  B: [
-    { id: 3, name: 'Mike', job: 'Engineer' },
-    { id: 4, name: 'Emily', job: 'Analyst' },
-  ],
-  C: [
-    { id: 5, name: 'Tom', job: 'Manager' },
-    { id: 6, name: 'Jenny', job: 'Developer' },
-  ],
-  D: [
-    { id: 7, name: 'Harry', job: 'Designer' },
-    { id: 8, name: 'Linda', job: 'Engineer' },
-  ],
-  E: [
-    { id: 9, name: 'Peter', job: 'Analyst' },
-    { id: 10, name: 'Nancy', job: 'Manager' },
-  ],
-};
-
-const miscMap = {
-  'Smoke Order': [
-    { id: 1, name: 'John' },
-    { id: 2, name: 'Jane' },
-    { id: 3, name: 'Bob' },
-    { id: 4, name: 'Alice' },
-    { id: 5, name: 'Mark' },
-    { id: 6, name: 'Lisa' },
-  ],
-  'TL order': [
-    { id: 1, name: 'Charlie' },
-    { id: 2, name: 'David' },
-    { id: 3, name: 'Emily' },
-    { id: 4, name: 'Frank' },
-    { id: 5, name: 'Grace' },
-    { id: 6, name: 'Henry' },
-  ],
-  'Res Order': [
-    { id: 1, name: 'Isabella' },
-    { id: 2, name: 'Jack' },
-    { id: 3, name: 'Karen' },
-    { id: 4, name: 'Liam' },
-    { id: 5, name: 'Nancy' },
-    { id: 6, name: 'Oliver' },
-  ],
-  Belts: [
-    { id: 1, name: 'Pamela' },
-    { id: 2, name: 'Quentin' },
-    { id: 3, name: 'Rose' },
-    { id: 4, name: 'Steven' },
-    { id: 5, name: 'Tina' },
-    { id: 6, name: 'Uma' },
-  ],
-};
+import { Job } from './utils/jobs';
 
 function App() {
   const [players, setPlayers] = useState(() => {
@@ -79,11 +24,21 @@ function App() {
     return savedPlayers !== null ? JSON.parse(savedPlayers) : [];
   });
   const [editingPlayer, setEditingPlayer] = useState(null);
-  const [bonusArray, setBonusArray] = useState([[], [], []]);
+  const [bonusArray, setBonusArray] = useState(() => {
+    const savedBonus = localStorage.getItem('bonus');
+    return savedBonus !== null ? JSON.parse(savedBonus) : [];
+  });
+  const [partyArray, setPartyArray] = useState(() => {
+    const savedParty = localStorage.getItem('parties');
+    return savedParty !== null ? JSON.parse(savedParty) : [];
+  });
+  const [miscArray, setMiscArray] = useState([]);
 
   useEffect(() => {
     localStorage.setItem('players', JSON.stringify(players));
-  }, [players]);
+    localStorage.setItem('bonus', JSON.stringify(bonusArray));
+    localStorage.setItem('parties', JSON.stringify(partyArray));
+  }, [players, bonusArray, partyArray]);
 
   const handleStartEdit = (pl) => {
     setEditingPlayer(pl);
@@ -170,9 +125,11 @@ function App() {
   };
 
   const handleGenerateTeam = (numBs, numBucc, sortOrder) => {
-    generateTeam(players, numBs, numBucc, sortOrder);
-    // generatePart;
-    // setPlayers();
+    const [plyrs, parties] = generateTeam(players, numBs, numBucc, sortOrder);
+    setPlayers(plyrs);
+    setPartyArray(mapParties(parties));
+    mapMiscRow(players);
+    // setMiscArray();
   };
 
   return (
@@ -215,11 +172,13 @@ function App() {
           onToggleNx={handleToggleNx}
         />
         <TeamForm
+          bsSigned={players.filter((p) => p.jobs.includes(Job.BS)).length}
+          buccSigned={players.filter((p) => p.jobs.includes(Job.Bucc)).length}
           numBsSuggest={numSuggestedBs(players)}
           onGenerateTeam={handleGenerateTeam}
         />
-        <PartyRow teamMap={teamMap} />
-        <MiscRow miscMap={miscMap} />
+        <PartyRow parties={partyArray} />
+        <MiscRow miscMap={miscArray} />
         <Tooltip
           placement="top"
           title="Supports random layout for 12+ looters. NX looters have less box"
@@ -233,7 +192,7 @@ function App() {
           </Button>
         </Tooltip>
         <Box display="flex" justifyContent="center">
-          {bonusArray && <BonusRow bonusArray={bonusArray} />}
+          <BonusRow bonusArray={bonusArray} />
         </Box>
         <img src="/vl_bonus.png" alt="Bonus map" />
       </Stack>

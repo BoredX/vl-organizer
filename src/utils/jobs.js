@@ -56,6 +56,21 @@ const reverseTierList = invert(tierList);
 
 export const getTier = (job) => tierList[job];
 
+const jobDisplayMap = {
+  NL: 0,
+  Sair: 1,
+  Hero: 2,
+  DK: 3,
+  Pally: 4,
+  Shad: 5,
+  Bucc: 6,
+  SE: 7,
+  BS: 8,
+};
+
+export const getDisplayOrder = (player) =>
+  jobDisplayMap[player.jobs[player.chosenIndex]];
+
 export const getSortedJobsIndexByTier = (tier, player) => {
   const job = reverseTierList[tier];
   return player.sortedJobs.indexOf(job);
@@ -113,7 +128,6 @@ export const createJobPlayerList = (players, sortOrder) => {
     });
     tierListWithPlayers[tier] = ps;
   }
-  console.log(tierListWithPlayers);
 
   // Each element is an array of players having that job.
   return [sortedPlayers, tierListWithPlayers];
