@@ -161,9 +161,9 @@ function App() {
             />
           </Box>
           <Stack spacing={4}>
-            <Button variant="contained" color="error">
+            {/* <Button variant="contained" color="error">
               Reset Run
-            </Button>
+            </Button> */}
             <Button
               variant="contained"
               color="success"

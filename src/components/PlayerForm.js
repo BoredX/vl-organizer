@@ -107,6 +107,9 @@ const PlayerForm = ({
 
   const handleSwitchVertical = () => {
     setIsVerticalInput(!isVerticalInput);
+    inputRef.current.focus();
+    const valueLength = inputRef.current.value.length;
+    inputRef.current.setSelectionRange(valueLength, valueLength);
   };
 
   const handleAddClick = () => {
@@ -168,9 +171,9 @@ const PlayerForm = ({
         multiline
         minRows={4}
         style={{ width: 500 }}
-        InputLabelProps={{
-          shrink: input !== '',
-        }}
+        // InputLabelProps={{
+        //   shrink: input !== '',
+        // }}
         label={editingPlayer === null ? 'Add player' : 'Edit player'}
         placeholder={
           isVerticalInput
