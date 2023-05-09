@@ -10,7 +10,6 @@ import {
   Stack,
   ToggleButton,
   ToggleButtonGroup,
-  Box,
 } from '@mui/material';
 import playerPropType from './playerPropType';
 
