@@ -8,8 +8,8 @@ const playerPropType = {
   sortedJobs: PropTypes.arrayOf(PropTypes.string),
   sortedLoots: PropTypes.arrayOf(PropTypes.string),
   chosenIndex: PropTypes.number, // -1 if not chosen which character to run
-  party: PropTypes.string,
   partyIndex: PropTypes.number,
+  isShadParty: PropTypes.bool,
   isShad: PropTypes.bool,
   isBs: PropTypes.bool,
   isBucc: PropTypes.bool,

@@ -1,4 +1,4 @@
-import { invert } from 'lodash';
+import { invert, random } from 'lodash';
 
 const jobNameMapping = {
   NL: ['nl'],
@@ -39,6 +39,20 @@ export const jobFlags = (job) => ({
   isNl: job === Job.NL,
   isSair: job === Job.Sair,
 });
+
+export const resetPlayer = {
+  chosenIndex: -1,
+  partyIndex: -1,
+  isShadParty: false,
+  isShad: false,
+  isBs: false,
+  isBucc: false,
+  isSe: false,
+  isWar: false,
+  isNl: false,
+  isSair: false,
+  boxes: [],
+};
 
 const tierList = (() => ({
   Bucc: 0,
@@ -91,7 +105,7 @@ export const createJobPlayerList = (players, sortOrder) => {
 
       return {
         ...sortedPlayer,
-        chosenIndex: -1,
+        ...resetPlayer,
         sortedLoots: sortedPlayer.sortedJobs.map(
           (job) => sortedPlayer.loots[sortedPlayer.jobs.indexOf(job)]
         ),
@@ -100,7 +114,7 @@ export const createJobPlayerList = (players, sortOrder) => {
   } else {
     sortedPlayers = players.map((p) => ({
       ...p,
-      chosenIndex: -1,
+      ...resetPlayer,
       sortedJobs: [...p.jobs],
       sortedLoots: [...p.loots],
     }));
@@ -124,11 +138,13 @@ export const createJobPlayerList = (players, sortOrder) => {
       ) {
         return 1;
       }
+      if (a.jobs.length - b.jobs.length === 0) {
+        return random(-1, 1);
+      }
       return a.jobs.length - b.jobs.length;
     });
     tierListWithPlayers[tier] = ps;
   }
-
   // Each element is an array of players having that job.
   return [sortedPlayers, tierListWithPlayers];
 };

@@ -10,7 +10,7 @@ import {
   TableRow,
 } from '@mui/material';
 
-const MiscTable = ({ name, values }) => (
+const MiscTable = ({ name, players }) => (
   <TableContainer component={Paper} elevation={10}>
     <Table>
       <TableHead>
@@ -21,12 +21,12 @@ const MiscTable = ({ name, values }) => (
         </TableRow>
       </TableHead>
       <TableBody>
-        {values.map((value) => (
+        {players.map((p) => (
           <TableRow
-            key={value.id}
+            key={p.id}
             sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
           >
-            <TableCell>{value.name}</TableCell>
+            <TableCell>{p.names[p.chosenIndex]}</TableCell>
           </TableRow>
         ))}
       </TableBody>
@@ -36,9 +36,7 @@ const MiscTable = ({ name, values }) => (
 
 MiscTable.propTypes = {
   name: PropTypes.string,
-  values: PropTypes.arrayOf(
-    PropTypes.shape({ id: PropTypes.number, name: PropTypes.string })
-  ),
+  players: PropTypes.arrayOf(PropTypes.object),
 };
 
 export default MiscTable;

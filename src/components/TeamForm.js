@@ -43,7 +43,7 @@ const TeamForm = ({ bsSigned, buccSigned, numBsSuggest, onGenerateTeam }) => {
             alignItems="center"
             justifyContent="space-evenly"
             marginBottom={4}
-            py={1}
+            py={2}
           >
             <FormControl>
               <InputLabel>BS</InputLabel>

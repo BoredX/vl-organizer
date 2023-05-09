@@ -10,7 +10,7 @@ import TeamForm from './components/TeamForm';
 import {
   generateBonusArray,
   generateTeam,
-  mapMiscRow,
+  mapPartyOrder,
   mapParties,
   numSuggestedBs,
   rollLoot,
@@ -32,7 +32,7 @@ function App() {
     const savedParty = localStorage.getItem('parties');
     return savedParty !== null ? JSON.parse(savedParty) : [];
   });
-  const [miscArray, setMiscArray] = useState([]);
+  const [partyOrderArray, setPartyOrderArray] = useState([]);
 
   useEffect(() => {
     localStorage.setItem('players', JSON.stringify(players));
@@ -125,11 +125,14 @@ function App() {
   };
 
   const handleGenerateTeam = (numBs, numBucc, sortOrder) => {
-    const [plyrs, parties] = generateTeam(players, numBs, numBucc, sortOrder);
+    let [plyrs, parties] = generateTeam(players, numBs, numBucc, sortOrder);
+    let pts;
+    [plyrs, pts] = mapParties(plyrs, parties);
+    const partyOrder = mapPartyOrder(plyrs);
+
     setPlayers(plyrs);
-    setPartyArray(mapParties(parties));
-    mapMiscRow(players);
-    // setMiscArray();
+    setPartyArray(pts);
+    setPartyOrderArray(partyOrder);
   };
 
   return (
@@ -178,7 +181,7 @@ function App() {
           onGenerateTeam={handleGenerateTeam}
         />
         <PartyRow parties={partyArray} />
-        <MiscRow miscMap={miscArray} />
+        <MiscRow miscTables={partyOrderArray} />
         <Tooltip
           placement="top"
           title="Supports random layout for 12+ looters. NX looters have less box"
