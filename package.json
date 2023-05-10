@@ -2,7 +2,7 @@
   "name": "vl-organizer",
   "version": "0.1.0",
   "private": false,
-  "homepage": "http://boredx.github.io/vl-organizer",
+  "homepage": "https://vl.boredxz.com",
   "dependencies": {
     "@emotion/react": "^11.10.8",
     "@emotion/styled": "^11.10.8",

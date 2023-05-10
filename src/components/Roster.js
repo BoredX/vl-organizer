@@ -45,7 +45,8 @@ const Roster = ({
                 const file = job.toLowerCase();
                 return (
                   <img
-                    src={`/${file}.png`}
+                    id={file}
+                    src={`${file}.png`}
                     alt={i < player.jobs.length - 1 ? `${job},` : job}
                     style={{ marginRight: i < players.length - 1 ? '4px' : 0 }}
                   />
