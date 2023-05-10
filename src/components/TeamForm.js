@@ -90,14 +90,16 @@ const TeamForm = ({ bsSigned, buccSigned, numBsSuggest, onGenerateTeam }) => {
           </Box>
         </form>
       </Paper>
-      <Button
-        fullWidth
-        variant="contained"
-        sx={{ color: 'primary' }}
-        onClick={() => onGenerateTeam(numBs, numBucc, sortOrder)}
-      >
-        Assign Parties
-      </Button>
+      <Tooltip placement="top" title="Requires 12 or more signs">
+        <Button
+          fullWidth
+          variant="contained"
+          sx={{ color: 'primary' }}
+          onClick={() => onGenerateTeam(numBs, numBucc, sortOrder)}
+        >
+          Assign Parties
+        </Button>
+      </Tooltip>
     </Box>
   );
 };
