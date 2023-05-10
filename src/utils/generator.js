@@ -69,6 +69,7 @@ export const rollLoot = (players) => {
 };
 
 export const generateBonusArray = (players) => {
+  if (players.length < 12) return [];
   const resetBonus = players.map((p) => ({ ...p, boxes: '' }));
   const bonusLooters = resetBonus.filter((p) => p.isBonus);
   const minBoxPerPlayer = Math.floor(30 / bonusLooters.length);

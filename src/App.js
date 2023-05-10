@@ -17,6 +17,7 @@ import {
   rollNx,
 } from './utils/generator';
 import { Job } from './utils/jobs';
+import CopyRow from './components/CopyRow';
 
 function App() {
   const [players, setPlayers] = useState(() => {
@@ -32,13 +33,17 @@ function App() {
     const savedParty = localStorage.getItem('parties');
     return savedParty !== null ? JSON.parse(savedParty) : [];
   });
-  const [partyOrderArray, setPartyOrderArray] = useState([]);
+  const [partyOrderArray, setPartyOrderArray] = useState(() => {
+    const savedPartyOrder = localStorage.getItem('partyOrder');
+    return savedPartyOrder !== null ? JSON.parse(savedPartyOrder) : [];
+  });
 
   useEffect(() => {
     localStorage.setItem('players', JSON.stringify(players));
     localStorage.setItem('bonus', JSON.stringify(bonusArray));
     localStorage.setItem('parties', JSON.stringify(partyArray));
-  }, [players, bonusArray, partyArray]);
+    localStorage.setItem('partyOrder', JSON.stringify(partyOrderArray));
+  }, [players, bonusArray, partyArray, partyOrderArray]);
 
   const inputRef = useRef(null);
 
@@ -150,7 +155,7 @@ function App() {
         <Box display="flex" justifyContent="center">
           <Typography variant="h3">VL Organizer</Typography>
         </Box>
-        <Box display="flex" justifyContent="space-evenly">
+        <Box display="flex" justifyContent="center" columnGap={10}>
           <Box>
             <PlayerForm
               players={players}
@@ -160,7 +165,7 @@ function App() {
               onSubmitEdit={handleUpdatePlayer}
             />
           </Box>
-          <Stack spacing={4}>
+          <Stack spacing={2} marginTop={2}>
             {/* <Button variant="contained" color="error">
               Reset Run
             </Button> */}
@@ -192,6 +197,11 @@ function App() {
         />
         <PartyRow parties={partyArray} />
         <MiscRow miscTables={partyOrderArray} />
+        <CopyRow
+          partyArray={partyArray}
+          partyOrderArray={partyOrderArray}
+          bonusArray={bonusArray}
+        />
         <Tooltip
           placement="top"
           title="Supports random layout for 12+ looters. NX looters have less box"

@@ -21,7 +21,7 @@ const Roster = ({
   onToggleBelt,
   onToggleNx,
 }) => (
-  <TableContainer component={Paper} elevation={10} style={{ minWidth: 1000 }}>
+  <TableContainer component={Paper} elevation={10}>
     <Table>
       <TableHead>
         <TableRow>
