@@ -1,4 +1,4 @@
-import { shuffle, times } from 'lodash';
+import { findLastIndex, shuffle, times } from 'lodash';
 import { random } from './random';
 import {
   Job,
@@ -407,20 +407,21 @@ const generateParties = (players) => {
       parties[i] = fillWithShads(parties[i], shads);
     }
   }
-  const numMembers = parties.map((p) => p.length);
-  const lastPartyIndex = numMembers.lastIndexOf(0);
-  const shadPartyIndex = lastPartyIndex > 0 ? lastPartyIndex - 1 : 4;
+  const numShadsArr = parties.map((pt) => pt.filter((pl) => pl.isShad).length);
+  const shadPartyIndex = findLastIndex(numShadsArr, (numShad) => numShad !== 0);
 
-  parties[shadPartyIndex] = parties[shadPartyIndex].map((p) =>
-    p.isShad ? { ...p, isShadParty: p.isShad } : p
-  );
+  if (shadPartyIndex >= 0) {
+    parties[shadPartyIndex] = parties[shadPartyIndex].map((p) =>
+      p.isShad ? { ...p, isShadParty: p.isShad } : p
+    );
 
-  parties[shadPartyIndex].forEach((shds) => {
-    const player = players.find((p) => shds.id === p.id);
-    if (player.isShad) {
-      player.isShadParty = true;
-    }
-  });
+    parties[shadPartyIndex].forEach((shds) => {
+      const player = players.find((p) => shds.id === p.id);
+      if (player.isShad) {
+        player.isShadParty = true;
+      }
+    });
+  }
 
   return parties;
 };

@@ -10,6 +10,7 @@ const MiscRow = ({ miscTables }) => (
           return <MiscTable key="res" name="Res Order" players={players} />;
         }
         if (i === 1 && players.length > 0) {
+          console.log('mis tables', miscTables);
           return <MiscTable key="tl" name="TL Order" players={players} />;
         }
         if (i === 2 && players.length > 0) {
