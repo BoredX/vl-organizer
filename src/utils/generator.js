@@ -151,10 +151,10 @@ export const generateBonusArray = (players) => {
   const cLooters = bonusLooters.filter((p) => p.boxes.startsWith('c'));
 
   const compare = (a, b, letter) => {
-    if (a.boxes === `${letter}10`) {
+    if (a.boxes.startsWith(`${letter}10`)) {
       return 1;
     }
-    if (b.boxes === `${letter}10`) {
+    if (b.boxes.startsWith(`${letter}10`)) {
       return -1;
     }
     return a.boxes.localeCompare(b.boxes);
