@@ -28,9 +28,10 @@ const PartyRow = ({ parties, onPartyChange }) => {
       const sourcePartyIndex = partyNamesMap[source.droppableId];
       const draggedItem = moveablePts[sourcePartyIndex].players[source.index];
       // Remove the item from the source table
-      const updatedPlayers = moveablePts[sourcePartyIndex].players.filter(
+      let updatedPlayers = moveablePts[sourcePartyIndex].players.filter(
         (_, index) => index !== source.index
       );
+      updatedPlayers = updatedPlayers.map((p, i) => ({ ...p, partyIndex: i }));
 
       // Remove player and re-set the source party
       moveablePts[sourcePartyIndex].players = updatedPlayers;
@@ -45,7 +46,7 @@ const PartyRow = ({ parties, onPartyChange }) => {
 
       // Update the state with the new table data
       setMoveablePts(moveablePts);
-      onPartyChange(destPartyIndex, moveablePts);
+      onPartyChange(moveablePts, sourcePartyIndex, destPartyIndex);
     }
   };
 

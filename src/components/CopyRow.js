@@ -42,21 +42,21 @@ const CopyRow = ({ partyArray, partyOrderArray, bonusArray }) => {
         color="info"
         onClick={() => handleBonusCopyInGame(bonusArray[0])}
       >
-        Copy bonus A (Row)
+        Copy bonus A
       </Button>
       <Button
         variant="contained"
         color="info"
         onClick={() => handleBonusCopyInGame(bonusArray[1])}
       >
-        Copy bonus B (Row)
+        Copy bonus B
       </Button>
       <Button
         variant="contained"
         color="info"
         onClick={() => handleBonusCopyInGame(bonusArray[2])}
       >
-        Copy bonus C (Row)
+        Copy bonus C
       </Button>
     </Box>
   );

@@ -2,10 +2,10 @@ import PropTypes from 'prop-types';
 import { Box } from '@mui/material';
 import MiscTable from './MiscTable';
 
-const MiscRow = ({ miscTables, onOrderChange }) => (
+const MiscRow = ({ partyOrders, onOrderChange }) => (
   <Box display="flex" gap={4}>
-    {miscTables.length > 0 &&
-      miscTables.map((players, i) => {
+    {partyOrders.length > 0 &&
+      partyOrders.map((players, i) => {
         if (i === 0 && players.length > 0) {
           return (
             <MiscTable
@@ -56,7 +56,7 @@ const MiscRow = ({ miscTables, onOrderChange }) => (
 );
 
 MiscRow.propTypes = {
-  miscTables: PropTypes.arrayOf(PropTypes.arrayOf(PropTypes.object)),
+  partyOrders: PropTypes.arrayOf(PropTypes.arrayOf(PropTypes.object)),
   onOrderChange: PropTypes.func,
 };
 
