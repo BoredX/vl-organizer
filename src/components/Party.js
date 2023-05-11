@@ -8,6 +8,7 @@ import {
   TableHead,
   TableRow,
 } from '@mui/material';
+import { Draggable, Droppable } from '@hello-pangea/dnd';
 import playerPropType from './playerPropType';
 
 const Party = ({ party }) => (
@@ -20,17 +21,38 @@ const Party = ({ party }) => (
           </TableCell>
         </TableRow>
       </TableHead>
-      <TableBody>
-        {party.players.map((p) => (
-          <TableRow
-            key={p.id}
-            sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
+      <Droppable droppableId={`party-${party.name}`}>
+        {(providedDroppable) => (
+          <TableBody
+            key={`party--${party.name}`}
+            ref={providedDroppable.innerRef}
+            {...providedDroppable.droppableProps}
+            align="center"
           >
-            <TableCell>{p.names[p.chosenIndex]}</TableCell>
-            <TableCell>{p.jobs[p.chosenIndex]}</TableCell>
-          </TableRow>
-        ))}
-      </TableBody>
+            {party.players.map((p, i) => (
+              <Draggable key={p.id} draggableId={String(p.id)} index={i}>
+                {(providedDraggable) => (
+                  <TableRow
+                    key={p.id}
+                    ref={providedDraggable.innerRef}
+                    {...providedDraggable.draggableProps}
+                    {...providedDraggable.dragHandleProps}
+                    sx={{
+                      cursor: 'grab',
+                    }}
+                  >
+                    <TableCell align="center">
+                      {p.names[p.chosenIndex]}
+                    </TableCell>
+                    <TableCell>{p.jobs[p.chosenIndex]}</TableCell>
+                  </TableRow>
+                )}
+              </Draggable>
+            ))}
+            {providedDroppable.placeholder}
+          </TableBody>
+        )}
+      </Droppable>
     </Table>
   </TableContainer>
 );

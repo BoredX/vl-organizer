@@ -12,20 +12,20 @@ import {
 import { DragDropContext, Draggable, Droppable } from '@hello-pangea/dnd';
 import { useEffect, useState } from 'react';
 
-const MiscTable = ({ name, players }) => {
-  const [draggablePlayers, setDraggablePlayers] = useState(players);
+const MiscTable = ({ name, ptIndex, players, onOrderChange }) => {
+  const [partyOrder, setPartyOrder] = useState(players);
 
   useEffect(() => {
-    console.log(players);
-    setDraggablePlayers(players);
+    setPartyOrder([...players]);
   }, [players]);
 
   const handleDragEnd = (result) => {
     if (result.destination !== null) {
-      const items = [...draggablePlayers];
-      const [movedItem] = items.splice(result.source.index, 1);
-      items.splice(result.destination.index, 0, movedItem);
-      setDraggablePlayers(items);
+      const partyMembers = [...partyOrder];
+      const [movedItem] = partyMembers.splice(result.source.index, 1);
+      partyMembers.splice(result.destination.index, 0, movedItem);
+      setPartyOrder(partyMembers);
+      onOrderChange(ptIndex, partyMembers);
     }
   };
 
@@ -49,7 +49,7 @@ const MiscTable = ({ name, players }) => {
                 {...providedDroppable.droppableProps}
                 align="center"
               >
-                {draggablePlayers.map((p, i) => (
+                {partyOrder.map((p, i) => (
                   <Draggable key={p.id} draggableId={String(p.id)} index={i}>
                     {(providedDraggable) => (
                       <TableRow
@@ -58,7 +58,6 @@ const MiscTable = ({ name, players }) => {
                         {...providedDraggable.draggableProps}
                         {...providedDraggable.dragHandleProps}
                         sx={{
-                          '&:last-child td, &:last-child th': { border: 0 },
                           cursor: 'grab',
                         }}
                       >
@@ -81,7 +80,9 @@ const MiscTable = ({ name, players }) => {
 
 MiscTable.propTypes = {
   name: PropTypes.string,
+  ptIndex: PropTypes.number,
   players: PropTypes.arrayOf(PropTypes.object),
+  onOrderChange: PropTypes.func,
 };
 
 export default MiscTable;

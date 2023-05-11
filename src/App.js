@@ -149,6 +149,19 @@ function App() {
     setPartyOrderArray(partyOrder);
   };
 
+  /*     Drag and drop handlers     */
+  const handleChangeParty = (i, pt) => {
+    setPartyArray(pt);
+  };
+
+  const handleOrderChange = (i, ptOrder) => {
+    const newPartyOrder = [...partyOrderArray];
+    newPartyOrder[i] = ptOrder;
+    setPartyOrderArray(newPartyOrder);
+  };
+
+  /*   Drag and drop handlers end   */
+
   return (
     <Box my={7} display="flex" alignItems="center" justifyContent="center">
       <Stack spacing={6}>
@@ -195,8 +208,11 @@ function App() {
           numBsSuggest={numSuggestedBs(players)}
           onGenerateTeam={handleGenerateTeam}
         />
-        <PartyRow parties={partyArray} />
-        <MiscRow miscTables={partyOrderArray} />
+        <PartyRow parties={partyArray} onPartyChange={handleChangeParty} />
+        <MiscRow
+          miscTables={partyOrderArray}
+          onOrderChange={handleOrderChange}
+        />
         <CopyRow
           partyArray={partyArray}
           partyOrderArray={partyOrderArray}

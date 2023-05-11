@@ -345,8 +345,8 @@ const updateCharBySortedIndex = (player, sortedIndex) => {
 };
 
 const generateParties = (players) => {
-  if (players.length < 12) return [];
   const parties = times(5, () => []);
+
   const bs = shuffle(players.filter((p) => p.isBs));
   for (let i = 0; i < bs.length; i += 1) {
     parties[i].push(bs[i]);
@@ -494,6 +494,7 @@ export const mapParties = (players, parties) => {
       players: playersWithPartyIndex,
     };
   });
+
   return [plyrs, pts];
 };
 

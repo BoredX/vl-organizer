@@ -8,7 +8,7 @@ const playerPropType = {
   sortedJobs: PropTypes.arrayOf(PropTypes.string),
   sortedLoots: PropTypes.arrayOf(PropTypes.string),
   chosenIndex: PropTypes.number, // -1 if not chosen which character to run
-  partyIndex: PropTypes.number,
+  partyIndex: PropTypes.number, // Only used to assign initial smoke order.
   isShadParty: PropTypes.bool,
   isShad: PropTypes.bool,
   isBs: PropTypes.bool,
