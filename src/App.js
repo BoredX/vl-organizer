@@ -84,6 +84,15 @@ function App() {
         id: index,
       }));
     });
+    setPartyArray((prevParties) =>
+      prevParties.map((party) => ({
+        ...party,
+        players: party.players.filter((p) => p.id !== id),
+      }))
+    );
+    setPartyOrderArray((prevPartyOrder) =>
+      prevPartyOrder.map((party) => party.filter((p) => p.id !== id))
+    );
   };
 
   const handleToggleBelt = (id, isBelt) => {
