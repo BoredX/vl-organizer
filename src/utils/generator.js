@@ -407,9 +407,8 @@ const generateParties = (players) => {
       parties[i] = fillWithShads(parties[i], shads);
     }
   }
-  const numShadsArr = parties.map((pt) => pt.filter((pl) => pl.isShad).length);
-  const shadPartyIndex = findLastIndex(numShadsArr, (numShad) => numShad !== 0);
-
+  const shadPartyIndex = findShadPartyIndex(parties);
+  console.log('shadPartyIndex', shadPartyIndex);
   if (shadPartyIndex >= 0) {
     parties[shadPartyIndex] = parties[shadPartyIndex].map((p) =>
       p.isShad ? { ...p, isShadParty: p.isShad } : p
@@ -424,6 +423,12 @@ const generateParties = (players) => {
   }
 
   return parties;
+};
+
+export const findShadPartyIndex = (parties) => {
+  const numShadsArr = parties.map((pt) => pt.filter((pl) => pl.isShad).length);
+  const shadPartyIndex = findLastIndex(numShadsArr, (numShad) => numShad !== 0);
+  return shadPartyIndex;
 };
 
 const fillPartyWithOneWarSairRestBuccs = (party, sairs, wars, buccs) => {

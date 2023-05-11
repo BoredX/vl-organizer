@@ -44,7 +44,7 @@ const Party = ({ party }) => (
                     <TableCell align="center">
                       {p.names[p.chosenIndex]}
                     </TableCell>
-                    <TableCell>{p.jobs[p.chosenIndex]}</TableCell>
+                    <TableCell width="30%">{p.jobs[p.chosenIndex]}</TableCell>
                   </TableRow>
                 )}
               </Draggable>

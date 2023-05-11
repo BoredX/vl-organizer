@@ -1,3 +1,4 @@
+import PropTypes from 'prop-types';
 import {
   Button,
   TableContainer,
@@ -10,6 +11,8 @@ import {
   Stack,
   ToggleButton,
   ToggleButtonGroup,
+  IconButton,
+  Box,
 } from '@mui/material';
 import playerPropType from './playerPropType';
 
@@ -20,6 +23,7 @@ const Roster = ({
   onToggleBonus,
   onToggleBelt,
   onToggleNx,
+  onJobChange,
 }) => (
   <TableContainer component={Paper} elevation={10}>
     <Table>
@@ -41,17 +45,26 @@ const Roster = ({
             <TableCell>{player.id + 1}</TableCell>
             <TableCell>{player.names.join(', ')}</TableCell>
             <TableCell>
-              {player.jobs.map((job, i) => {
-                const file = job.toLowerCase();
-                return (
-                  <img
-                    id={file}
-                    src={`${file}.png`}
-                    alt={i < player.jobs.length - 1 ? `${job},` : job}
-                    style={{ marginRight: i < players.length - 1 ? '4px' : 0 }}
-                  />
-                );
-              })}
+              <Stack direction="row">
+                {player.jobs.map((job, i) => {
+                  const file = job.toLowerCase();
+                  return (
+                    <IconButton onClick={() => onJobChange(player.id, i)}>
+                      <Box>
+                        <img
+                          id={file}
+                          src={`${file}.png`}
+                          alt={i < player.jobs.length - 1 ? `${job},` : job}
+                          style={{
+                            marginRight: i < players.length - 1 ? '3px' : 0,
+                            transform: 'scale(1.5)',
+                          }}
+                        />
+                      </Box>
+                    </IconButton>
+                  );
+                })}
+              </Stack>
             </TableCell>
             <TableCell>{player.loots.join(', ')}</TableCell>
             <TableCell>
@@ -120,6 +133,14 @@ const Roster = ({
   </TableContainer>
 );
 
-Roster.propTypes = playerPropType;
+Roster.propTypes = {
+  players: PropTypes.arrayOf(PropTypes.shape(playerPropType)),
+  onRemove: PropTypes.func,
+  onEdit: PropTypes.func,
+  onToggleBonus: PropTypes.func,
+  onToggleBelt: PropTypes.func,
+  onToggleNx: PropTypes.func,
+  onJobChange: PropTypes.func,
+};
 
 export default Roster;
