@@ -4,7 +4,6 @@ import playerPropType from './playerPropType';
 
 const CopyRow = ({ partyArray, partyOrderArray, bonusArray }) => {
   const handlePartyCopy = () => {
-    console.log(partyArray);
     if (partyArray.length > 0) {
       const str = copyPartyInfo(partyArray, partyOrderArray);
       navigator.clipboard.writeText(str);
