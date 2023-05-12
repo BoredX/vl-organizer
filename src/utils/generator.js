@@ -412,12 +412,10 @@ const generateParties = (players) => {
 };
 
 export const findShadPartyIndex = (parties) => {
-  console.log('find shad parties index', parties);
   const numShadsArr = parties.map(
     (pt) => pt.players.filter((pl) => pl.isShad).length
   );
   const shadPartyIndex = findLastIndex(numShadsArr, (numShad) => numShad !== 0);
-  console.log('find lastshad index', shadPartyIndex);
   return shadPartyIndex;
 };
 
@@ -493,17 +491,13 @@ export const mapParties = (players, parties) => {
   return [plyrs, pts];
 };
 
-export const mapPartyOrder = (players, parties, shadPartyIndex) => {
+export const mapPartyOrder = (players) => {
   // if (players.length < 12) return [];
   // res, tl, smoke, belt tables
   const tables = times(4, () => []);
   tables[0] = shuffle(players.filter((p) => p.isBs));
   tables[1] = shuffle(players.filter((p) => p.isBucc));
-  const shadIds = parties[shadPartyIndex].players
-    .filter((p) => p.isShad)
-    .map((p) => p.id);
-  tables[2] = players.filter((p) => shadIds.includes(p.id));
-  tables[2] = tables[2].sort((a, b) => a.partyIndex - b.partyIndex);
+  tables[2] = []; // removed this shad party logic
   tables[3] = players.filter((p) => p.isBelt);
   return tables;
 };

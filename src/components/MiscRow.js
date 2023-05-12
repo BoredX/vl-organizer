@@ -2,7 +2,7 @@ import PropTypes from 'prop-types';
 import { Box } from '@mui/material';
 import MiscTable from './MiscTable';
 
-const MiscRow = ({ partyOrders, onOrderChange }) => (
+const MiscRow = ({ partyOrders, onOrderChange, shadParty }) => (
   <Box display="flex" gap={4}>
     {partyOrders.length > 0 &&
       partyOrders.map((players, i) => {
@@ -28,16 +28,20 @@ const MiscRow = ({ partyOrders, onOrderChange }) => (
             />
           );
         }
-        if (i === 2 && players.length > 0) {
-          return (
-            <MiscTable
-              key="smoke"
-              ptIndex={i}
-              name="Smoke Order"
-              players={players}
-              onOrderChange={onOrderChange}
-            />
-          );
+        if (i === 2) {
+          const shdPt = shadParty();
+          if (shdPt.length > 0) {
+            return (
+              <MiscTable
+                key="smoke"
+                ptIndex={i}
+                name="Smoke Order"
+                players={shdPt}
+                onOrderChange={onOrderChange}
+              />
+            );
+          }
+          return null;
         }
         if (i === 3 && players.length > 0) {
           return (
@@ -58,6 +62,7 @@ const MiscRow = ({ partyOrders, onOrderChange }) => (
 MiscRow.propTypes = {
   partyOrders: PropTypes.arrayOf(PropTypes.arrayOf(PropTypes.object)),
   onOrderChange: PropTypes.func,
+  shadParty: PropTypes.func,
 };
 
 export default MiscRow;
