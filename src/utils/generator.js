@@ -407,19 +407,6 @@ const generateParties = (players) => {
       parties[i] = fillWithShads(parties[i], shads);
     }
   }
-  // const shadPartyIndex = findShadPartyIndex(parties);
-  // if (shadPartyIndex >= 0) {
-  //   parties[shadPartyIndex] = parties[shadPartyIndex].map((p) =>
-  //     p.isShad ? { ...p, isShadParty: p.isShad } : p
-  //   );
-
-  //   parties[shadPartyIndex].forEach((shds) => {
-  //     const player = players.find((p) => shds.id === p.id);
-  //     if (player.isShad) {
-  //       player.isShadParty = true;
-  //     }
-  //   });
-  // }
 
   return parties;
 };

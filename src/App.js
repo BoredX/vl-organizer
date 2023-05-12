@@ -157,7 +157,7 @@ function App() {
         }
       }
 
-      // TODO when a shad is dragged into the shad party, re-render partyArray + isShadParty
+      // TODO when a shad is dragged into the shad party, re-render partyArray
 
       return newPartyOrder;
     });
