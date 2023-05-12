@@ -412,9 +412,7 @@ const generateParties = (players) => {
 };
 
 export const findShadPartyIndex = (parties) => {
-  const numShadsArr = parties.map(
-    (pt) => pt.players.filter((pl) => pl.isShad).length
-  );
+  const numShadsArr = parties.map((pt) => pt.filter((pl) => pl.isShad).length);
   const shadPartyIndex = findLastIndex(numShadsArr, (numShad) => numShad !== 0);
   return shadPartyIndex;
 };
@@ -470,29 +468,29 @@ const fillWithShads = (party, shads) => {
 };
 
 export const mapParties = (players, parties) => {
-  const plyrs = [...players];
-  const pts = parties.map((party, i) => {
+  let plyrs = [...players];
+  const pts = [...parties];
+  const sortedTeams = pts.map((party) => {
     party.sort((a, b) => getDisplayOrder(a) - getDisplayOrder(b));
-    const playersWithPartyIndex = party.map((p, playerIndex) => ({
+    return party.map((p, playerIndex) => ({
       ...p,
       partyIndex: playerIndex,
     }));
-
-    playersWithPartyIndex.forEach((pi, ind) => {
-      const player = plyrs.find((p) => p.id === pi.id);
-      player.partyIndex = ind;
-    });
-    return {
-      name: String.fromCharCode(i + 'A'.charCodeAt(0)),
-      players: playersWithPartyIndex,
-    };
   });
 
-  return [plyrs, pts];
+  const piArray = sortedTeams.flat();
+  plyrs = plyrs.map((p) => {
+    const piPlayer = piArray.find((pi) => p.id === pi.id);
+    return { ...piPlayer };
+  });
+  console.log('mapparties start');
+  console.log('plyrs', plyrs);
+  console.log('sortedTeams', sortedTeams);
+  console.log('mapparties fin');
+  return [plyrs, sortedTeams];
 };
 
 export const mapPartyOrder = (players) => {
-  // if (players.length < 12) return [];
   // res, tl, smoke, belt tables
   const tables = times(4, () => []);
   tables[0] = shuffle(players.filter((p) => p.isBs));
@@ -501,3 +499,6 @@ export const mapPartyOrder = (players) => {
   tables[3] = players.filter((p) => p.isBelt);
   return tables;
 };
+
+export const indexToPartyLetter = (i) =>
+  String.fromCharCode(i + 'A'.charCodeAt(0));

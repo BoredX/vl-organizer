@@ -32,11 +32,13 @@ function App() {
   });
   const [partyArray, setPartyArray] = useState(() => {
     const savedParty = localStorage.getItem('parties');
-    return savedParty !== null ? JSON.parse(savedParty) : [];
+    return savedParty !== null ? JSON.parse(savedParty) : [[], [], [], [], []];
   });
   const [partyOrderArray, setPartyOrderArray] = useState(() => {
     const savedPartyOrder = localStorage.getItem('partyOrder');
-    return savedPartyOrder !== null ? JSON.parse(savedPartyOrder) : [];
+    return savedPartyOrder !== null
+      ? JSON.parse(savedPartyOrder)
+      : [[], [], [], []];
   });
 
   useEffect(() => {
@@ -59,20 +61,52 @@ function App() {
     });
   };
 
-  const handleNewPlayer = (ps) => {
-    if (ps.length <= 30) {
-      setPlayers(
-        ps.map((p, index) => ({
-          ...p,
-          id: index,
-        }))
+  const handleNewPlayer = (plyr) => {
+    if (players.length <= 30) {
+      const id = players.length;
+      console.log({ ...plyr, id });
+      console.log('new players', [...players, { ...plyr, id }]);
+
+      const newPartyArr = [...partyArray];
+      const counts = newPartyArr.map((p) => p.length);
+      const firstAvail = counts.findIndex((c) => c < 6);
+
+      const ptIndex = newPartyArr[firstAvail].length;
+      const job = plyr.jobs[0];
+      const jFlags = jobFlags(job);
+      const newPlayer = { ...plyr, id, partyIndex: ptIndex, ...jFlags };
+      console.log(newPlayer);
+      setPartyArray(
+        newPartyArr.map((p, i) => (i === firstAvail ? [...p, newPlayer] : p))
       );
+
+      setPartyOrderArray((prevPartyOrder) =>
+        prevPartyOrder.map((pt, i) => {
+          if (i === 0 && newPlayer.isBs) {
+            return [...pt, newPlayer];
+          }
+          if (i === 1 && newPlayer.isBucc) {
+            return [...pt, newPlayer];
+          }
+          return pt;
+        })
+      );
+      setPlayers([...players, newPlayer]);
     }
   };
 
   const handleUpdatePlayer = (updatedPlayer) => {
     setPlayers(
       players.map((p) => (p.id === updatedPlayer.id ? updatedPlayer : p))
+    );
+    setPartyArray((prevPartyArray) =>
+      prevPartyArray.map((p) => (p.id === updatedPlayer.id ? updatedPlayer : p))
+    );
+    console.log('updatedPLyaer', updatedPlayer);
+    setPartyOrderArray((prevPartyOrderArray) =>
+      prevPartyOrderArray.map((p) =>
+        p.id === updatedPlayer.id ? updatedPlayer : p
+      )
     );
     setEditingPlayer(null);
   };
@@ -126,10 +160,7 @@ function App() {
     });
 
     setPartyArray((prevParties) =>
-      prevParties.map((party) => ({
-        ...party,
-        players: party.players.map((p) => (p.id === id ? changedPlayer : p)),
-      }))
+      prevParties.map((p) => (p.id === id ? [...p, changedPlayer] : p))
     );
 
     setPlayers((prevPlayers) =>
@@ -146,10 +177,7 @@ function App() {
       }));
     });
     setPartyArray((prevParties) =>
-      prevParties.map((party) => ({
-        ...party,
-        players: party.players.filter((p) => p.id !== id),
-      }))
+      prevParties.map((p) => p.filter((p1) => p1.id !== id))
     );
     setPartyOrderArray((prevPartyOrder) =>
       prevPartyOrder.map((party) => party.filter((p) => p.id !== id))
@@ -171,6 +199,11 @@ function App() {
       if (numBelts < 6) {
         setPlayers(
           players.map((p) => (p.id === id ? { ...p, ...newFlags } : p))
+        );
+        const player = players.find((p) => p.id === id);
+        console.log(player);
+        setPartyOrderArray((prevParties) =>
+          prevParties.map((pt, i) => (i === 3 ? [...pt, player] : pt))
         );
       }
     }
@@ -227,28 +260,24 @@ function App() {
     destPtIndex
   ) => {
     const newParty = [...parties];
-    newParty[sourcePtIndex].players = newParty[sourcePtIndex].players.map(
-      (p, i) => ({
-        ...p,
-        partyIndex: i,
-      })
-    );
-    newParty[destPtIndex].players = newParty[destPtIndex].players.map(
-      (p, i) => ({
-        ...p,
-        partyIndex: i,
-      })
-    );
+    newParty[sourcePtIndex] = newParty[sourcePtIndex].map((p, i) => ({
+      ...p,
+      partyIndex: i,
+    }));
+    newParty[destPtIndex] = newParty[destPtIndex].map((p, i) => ({
+      ...p,
+      partyIndex: i,
+    }));
     setPartyArray(newParty);
 
     setPlayers((oldPlayers) =>
       oldPlayers.map((p) => {
-        let player = newParty[sourcePtIndex].players.find(
+        let player = newParty[sourcePtIndex].find(
           (pPlayers) => pPlayers.id === p.id
         );
 
         if (!player) {
-          player = newParty[destPtIndex].players.find(
+          player = newParty[destPtIndex].find(
             (pPlayers) => pPlayers.id === p.id
           );
         }
@@ -267,7 +296,7 @@ function App() {
 
   const shadParty = () => {
     const index = findShadPartyIndex(partyArray);
-    return partyArray[index].players.filter((p) => p.isShad);
+    return index >= 0 ? partyArray[index].filter((p) => p.isShad) : [];
   };
 
   return (
@@ -279,7 +308,7 @@ function App() {
         <Box display="flex" justifyContent="center" columnGap={10}>
           <Box>
             <PlayerForm
-              players={players}
+              // players={players}
               onAddPlayer={handleNewPlayer}
               editingPlayer={editingPlayer}
               inputRef={inputRef}

@@ -4,6 +4,7 @@ import { DragDropContext } from '@hello-pangea/dnd';
 import { useEffect, useState } from 'react';
 import Party from './Party';
 import playerPropType from './playerPropType';
+import { indexToPartyLetter } from '../utils/generator';
 
 const partyNamesMap = {
   'party-A': 0,
@@ -26,23 +27,19 @@ const PartyRow = ({ parties, onPartyChange }) => {
     if (destination) {
       // Copy the item from the source table
       const sourcePartyIndex = partyNamesMap[source.droppableId];
-      const draggedItem = moveablePts[sourcePartyIndex].players[source.index];
+      const draggedItem = moveablePts[sourcePartyIndex][source.index];
       // Remove the item from the source table
-      let updatedPlayers = moveablePts[sourcePartyIndex].players.filter(
+      let updatedPlayers = moveablePts[sourcePartyIndex].filter(
         (_, index) => index !== source.index
       );
       updatedPlayers = updatedPlayers.map((p, i) => ({ ...p, partyIndex: i }));
 
       // Remove player and re-set the source party
-      moveablePts[sourcePartyIndex].players = updatedPlayers;
+      moveablePts[sourcePartyIndex] = updatedPlayers;
 
       // Insert the item into the destination table
       const destPartyIndex = partyNamesMap[destination.droppableId];
-      moveablePts[destPartyIndex].players.splice(
-        destination.index,
-        0,
-        draggedItem
-      );
+      moveablePts[destPartyIndex].splice(destination.index, 0, draggedItem);
 
       // Update the state with the new table data
       setMoveablePts(moveablePts);
@@ -56,11 +53,17 @@ const PartyRow = ({ parties, onPartyChange }) => {
       onDragEnd={onDragEnd}
     >
       <Box display="flex" gap={4}>
-        {moveablePts.map((party) => {
-          if (party.players.length === 0) {
+        {moveablePts.map((party, i) => {
+          if (party.length === 0) {
             return null;
           }
-          return <Party key={party.name} party={party} />;
+          return (
+            <Party
+              key={indexToPartyLetter(i)}
+              party={party}
+              name={indexToPartyLetter(i)}
+            />
+          );
         })}
       </Box>
     </DragDropContext>
@@ -69,10 +72,7 @@ const PartyRow = ({ parties, onPartyChange }) => {
 
 PartyRow.propTypes = {
   parties: PropTypes.arrayOf(
-    PropTypes.shape({
-      name: PropTypes.string,
-      players: PropTypes.arrayOf(PropTypes.shape(playerPropType)),
-    })
+    PropTypes.arrayOf(PropTypes.shape(playerPropType))
   ),
   onPartyChange: PropTypes.func,
 };

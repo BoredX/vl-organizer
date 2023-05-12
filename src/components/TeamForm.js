@@ -20,7 +20,7 @@ import { useState } from 'react';
 const TeamForm = ({ bsSigned, buccSigned, numBsSuggest, onGenerateTeam }) => {
   const [sortOrder, setSortOrder] = useState('player');
   const [numBs, setNumBs] = useState(numBsSuggest);
-  const [numBucc, setNumBucc] = useState(4);
+  const [numBucc, setNumBucc] = useState('');
 
   const handleSortChange = (event) => {
     setSortOrder(event.target.value);
@@ -47,7 +47,11 @@ const TeamForm = ({ bsSigned, buccSigned, numBsSuggest, onGenerateTeam }) => {
           >
             <FormControl>
               <InputLabel>BS</InputLabel>
-              <Select value={numBs} onChange={handleBsChange} label="BS">
+              <Select
+                value={Math.max(1, numBs)}
+                onChange={handleBsChange}
+                label="BS"
+              >
                 {range(1, Math.min(bsSigned + 1, 6)).map((x) => (
                   <MenuItem key={x} value={x}>
                     {x}
@@ -58,7 +62,11 @@ const TeamForm = ({ bsSigned, buccSigned, numBsSuggest, onGenerateTeam }) => {
             </FormControl>
             <FormControl>
               <InputLabel>Buccs</InputLabel>
-              <Select label="Buccs" value={numBucc} onChange={handleBuccChange}>
+              <Select
+                label="Buccs"
+                value={Math.max(1, numBucc)}
+                onChange={handleBuccChange}
+              >
                 {range(1, Math.min(buccSigned + 1, 6)).map((x) => (
                   <MenuItem key={x} value={x}>
                     {x}

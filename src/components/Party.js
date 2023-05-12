@@ -11,25 +11,25 @@ import {
 import { Draggable, Droppable } from '@hello-pangea/dnd';
 import playerPropType from './playerPropType';
 
-const Party = ({ party }) => (
+const Party = ({ party, name }) => (
   <TableContainer component={Paper} elevation={10}>
     <Table>
       <TableHead>
         <TableRow>
           <TableCell colSpan={2} align="center">
-            Party {party.name}
+            Party {name}
           </TableCell>
         </TableRow>
       </TableHead>
-      <Droppable droppableId={`party-${party.name}`}>
+      <Droppable droppableId={`party-${name}`}>
         {(providedDroppable) => (
           <TableBody
-            key={`party--${party.name}`}
+            key={`party-${name}`}
             ref={providedDroppable.innerRef}
             {...providedDroppable.droppableProps}
             align="center"
           >
-            {party.players.map((p, i) => (
+            {party.map((p, i) => (
               <Draggable key={p.id} draggableId={String(p.id)} index={i}>
                 {(providedDraggable) => (
                   <TableRow
@@ -58,10 +58,8 @@ const Party = ({ party }) => (
 );
 
 Party.propTypes = {
-  party: PropTypes.shape({
-    name: PropTypes.string,
-    players: PropTypes.arrayOf(PropTypes.shape(playerPropType)),
-  }),
+  name: PropTypes.string,
+  party: PropTypes.arrayOf(PropTypes.shape(playerPropType)),
 };
 
 export default Party;
