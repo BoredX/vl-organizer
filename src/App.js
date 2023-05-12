@@ -86,7 +86,7 @@ function App() {
     const player = players.find((p) => p.id === id);
     let changedPlayer = { ...player };
     let newShadPartyIndex = shadPartyIndex;
-    console.log('new iteration s had index', shadPartyIndex);
+    console.log('new iteration shad index', shadPartyIndex);
 
     setPartyOrderArray((prevPartyOrder) => {
       const newPartyOrder = [...prevPartyOrder];
@@ -115,18 +115,14 @@ function App() {
       );
       // Remove from old party Order if they were in special party
       if (
-        // oldPartyTablesIndex >= 0 &&
-        changedPlayer.isBs ||
-        changedPlayer.isBucc ||
-        isShadParty(changedPlayer, partyArray, shadPartyIndex)
+        oldPartyTablesIndex >= 0 &&
+        (changedPlayer.isBs ||
+          changedPlayer.isBucc ||
+          isShadParty(changedPlayer, partyArray, shadPartyIndex))
       ) {
         newPartyOrder[oldPartyTablesIndex] = newPartyOrder[
           oldPartyTablesIndex
         ].filter((p) => p.id !== id);
-        // if after removal, if they were the last shad in the smoke party, find a new smoke party
-        if (changedPlayer.isShad && newPartyOrder[2].length === 0) {
-          newShadPartyIndex = findShadPartyIndex(partyArray);
-        }
       }
 
       // reset jobs - and do new player stuff
@@ -145,7 +141,7 @@ function App() {
           (pt) => pt.players.filter((p) => p.id === id).length
         );
         const currentPartyIndex = booleanArr.findIndex((x) => !!x);
-
+        console.log('currentPartyIndex', currentPartyIndex);
         // Add to shad party if there is none, or they're in the smoke party
         if (
           newShadPartyIndex === -1 ||
@@ -156,20 +152,23 @@ function App() {
           newPartyOrder[2] = [...newPartyOrder[2], { ...changedPlayer }];
         }
       }
-
       // TODO when a shad is dragged into the shad party, re-render partyArray
 
-      return newPartyOrder;
-    });
-
-    setShadPartyIndex(newShadPartyIndex);
-
-    setPartyArray((prevParties) =>
-      prevParties.map((party) => ({
+      // We need to update the partyArray first so we can use it to find the index
+      // of new shad party without the old Shad still in the array
+      const newParties = partyArray.map((party) => ({
         ...party,
         players: party.players.map((p) => (p.id === id ? changedPlayer : p)),
-      }))
-    );
+      }));
+      setPartyArray(newParties);
+      console.log('new pts', newParties);
+      if (newPartyOrder[2].length === 0) {
+        newShadPartyIndex = findShadPartyIndex(newParties);
+      }
+      console.log('newShadPartyfinal', newShadPartyIndex);
+      setShadPartyIndex(newShadPartyIndex);
+      return newPartyOrder;
+    });
 
     setPlayers((prevPlayers) =>
       prevPlayers.map((p) => (p.id === id ? changedPlayer : p))
@@ -348,7 +347,11 @@ function App() {
           numBsSuggest={numSuggestedBs(players)}
           onGenerateTeam={handleGenerateTeam}
         />
-        <PartyRow parties={partyArray} onPartyChange={handleChangeParty} />
+        <PartyRow
+          parties={partyArray}
+          onPartyChange={handleChangeParty}
+          shadPartyIndex={shadPartyIndex}
+        />
         <MiscRow
           partyOrders={partyOrderArray}
           onOrderChange={handleOrderChange}
