@@ -17,7 +17,7 @@ import {
   rollNx,
   findShadPartyIndex,
 } from './utils/generator';
-import { Job, isShadParty, jobFlags } from './utils/jobs';
+import { Job, jobFlags } from './utils/jobs';
 import CopyRow from './components/CopyRow';
 
 function App() {
@@ -38,18 +38,13 @@ function App() {
     const savedPartyOrder = localStorage.getItem('partyOrder');
     return savedPartyOrder !== null ? JSON.parse(savedPartyOrder) : [];
   });
-  const [shadPartyIndex, setShadPartyIndex] = useState(() => {
-    const savedShadPartyIndex = localStorage.getItem('shadPartyIndex');
-    return savedShadPartyIndex !== null ? JSON.parse(savedShadPartyIndex) : -1;
-  });
 
   useEffect(() => {
     localStorage.setItem('players', JSON.stringify(players));
     localStorage.setItem('bonus', JSON.stringify(bonusArray));
     localStorage.setItem('parties', JSON.stringify(partyArray));
     localStorage.setItem('partyOrder', JSON.stringify(partyOrderArray));
-    localStorage.setItem('shadpartyIndex', JSON.stringify(shadPartyIndex));
-  }, [players, bonusArray, partyArray, partyOrderArray, shadPartyIndex]);
+  }, [players, bonusArray, partyArray, partyOrderArray]);
 
   const inputRef = useRef(null);
 
@@ -82,22 +77,20 @@ function App() {
     setEditingPlayer(null);
   };
 
-  const handleJobChange = (id, i) => {
+  const handleJobChange = (id, chosenIndex) => {
     const player = players.find((p) => p.id === id);
     let changedPlayer = { ...player };
-    let newShadPartyIndex = shadPartyIndex;
-    console.log('new iteration s had index', shadPartyIndex);
 
     setPartyOrderArray((prevPartyOrder) => {
       const newPartyOrder = [...prevPartyOrder];
       let oldIndexWithinTable = -1;
       let oldPartyTablesIndex = -1;
+
       for (
         let j = 0;
         j < newPartyOrder.length - 1 && oldIndexWithinTable < 0; // -1 because last party order is is belt
         j += 1
       ) {
-        console.log('looping ', j);
         oldIndexWithinTable = newPartyOrder[j].findIndex((p) => p.id === id);
         if (oldIndexWithinTable >= 0) {
           oldPartyTablesIndex = j;
@@ -105,33 +98,23 @@ function App() {
         // TODO when the char that got swithced had a belt, but now is not wanting one, need to send a Snackbox
       }
 
-      console.log('oldPartyTablesIndex', oldPartyTablesIndex);
-      console.log('changedplayer', changedPlayer);
-      console.log('shadPartyIndex', shadPartyIndex);
-      console.log(partyArray);
-      console.log(
-        'isshadpt',
-        isShadParty(changedPlayer, partyArray, shadPartyIndex)
-      );
       // Remove from old party Order if they were in special party
       if (
-        // oldPartyTablesIndex >= 0 &&
-        changedPlayer.isBs ||
-        changedPlayer.isBucc ||
-        isShadParty(changedPlayer, partyArray, shadPartyIndex)
+        oldPartyTablesIndex >= 0 &&
+        (changedPlayer.isBs || changedPlayer.isBucc)
       ) {
         newPartyOrder[oldPartyTablesIndex] = newPartyOrder[
           oldPartyTablesIndex
         ].filter((p) => p.id !== id);
-        // if after removal, if they were the last shad in the smoke party, find a new smoke party
-        if (changedPlayer.isShad && newPartyOrder[2].length === 0) {
-          newShadPartyIndex = findShadPartyIndex(partyArray);
-        }
       }
 
       // reset jobs - and do new player stuff
-      const newJob = changedPlayer.jobs[i];
-      changedPlayer = { ...changedPlayer, chosenIndex: i, ...jobFlags(newJob) };
+      const newJob = changedPlayer.jobs[chosenIndex];
+      changedPlayer = {
+        ...changedPlayer,
+        chosenIndex,
+        ...jobFlags(newJob),
+      };
       // Check if they should be put into a new one
       if (changedPlayer.isBs) {
         newPartyOrder[0] = [...newPartyOrder[0], { ...changedPlayer }];
@@ -139,30 +122,8 @@ function App() {
       if (changedPlayer.isBucc) {
         newPartyOrder[1] = [...newPartyOrder[1], { ...changedPlayer }];
       }
-
-      if (changedPlayer.isShad) {
-        const booleanArr = partyArray.map(
-          (pt) => pt.players.filter((p) => p.id === id).length
-        );
-        const currentPartyIndex = booleanArr.findIndex((x) => !!x);
-
-        // Add to shad party if there is none, or they're in the smoke party
-        if (
-          newShadPartyIndex === -1 ||
-          newPartyOrder[2].length === 0 ||
-          currentPartyIndex === newShadPartyIndex
-        ) {
-          newShadPartyIndex = currentPartyIndex;
-          newPartyOrder[2] = [...newPartyOrder[2], { ...changedPlayer }];
-        }
-      }
-
-      // TODO when a shad is dragged into the shad party, re-render partyArray
-
       return newPartyOrder;
     });
-
-    setShadPartyIndex(newShadPartyIndex);
 
     setPartyArray((prevParties) =>
       prevParties.map((party) => ({
@@ -251,17 +212,20 @@ function App() {
     let [plyrs, parties] = generateTeam(players, numBs, numBucc, sortOrder);
     let pts;
     [plyrs, pts] = mapParties(plyrs, parties);
-    const shdPtIndex = findShadPartyIndex(pts);
-    const partyOrder = mapPartyOrder(plyrs, pts, shdPtIndex);
+    const partyOrder = mapPartyOrder(plyrs);
 
-    setShadPartyIndex(shdPtIndex);
     setPlayers(plyrs);
     setPartyArray(pts);
     setPartyOrderArray(partyOrder);
   };
 
   /*     Drag and drop handlers     */
-  const handleChangeParty = (parties, sourcePtIndex, destPtIndex) => {
+  const handleChangeParty = (
+    updatedPlayer,
+    parties,
+    sourcePtIndex,
+    destPtIndex
+  ) => {
     const newParty = [...parties];
     newParty[sourcePtIndex].players = newParty[sourcePtIndex].players.map(
       (p, i) => ({
@@ -300,6 +264,11 @@ function App() {
   };
 
   /*   Drag and drop handlers end   */
+
+  const shadParty = () => {
+    const index = findShadPartyIndex(partyArray);
+    return partyArray[index].players.filter((p) => p.isShad);
+  };
 
   return (
     <Box my={7} display="flex" alignItems="center" justifyContent="center">
@@ -352,6 +321,7 @@ function App() {
         <MiscRow
           partyOrders={partyOrderArray}
           onOrderChange={handleOrderChange}
+          shadParty={shadParty}
         />
         <CopyRow
           partyArray={partyArray}

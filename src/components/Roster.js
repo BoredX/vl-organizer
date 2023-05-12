@@ -49,7 +49,10 @@ const Roster = ({
                 {player.jobs.map((job, i) => {
                   const file = job.toLowerCase();
                   return (
-                    <IconButton onClick={() => onJobChange(player.id, i)}>
+                    <IconButton
+                      key={`${player.id}-${job}`}
+                      onClick={() => onJobChange(player.id, i)}
+                    >
                       <Box>
                         <img
                           id={file}

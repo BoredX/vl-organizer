@@ -46,7 +46,7 @@ const PartyRow = ({ parties, onPartyChange }) => {
 
       // Update the state with the new table data
       setMoveablePts(moveablePts);
-      onPartyChange(moveablePts, sourcePartyIndex, destPartyIndex);
+      onPartyChange(draggedItem, moveablePts, sourcePartyIndex, destPartyIndex);
     }
   };
 
