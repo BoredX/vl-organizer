@@ -407,27 +407,17 @@ const generateParties = (players) => {
       parties[i] = fillWithShads(parties[i], shads);
     }
   }
-  const shadPartyIndex = findShadPartyIndex(parties);
-  console.log('shadPartyIndex', shadPartyIndex);
-  if (shadPartyIndex >= 0) {
-    parties[shadPartyIndex] = parties[shadPartyIndex].map((p) =>
-      p.isShad ? { ...p, isShadParty: p.isShad } : p
-    );
-
-    parties[shadPartyIndex].forEach((shds) => {
-      const player = players.find((p) => shds.id === p.id);
-      if (player.isShad) {
-        player.isShadParty = true;
-      }
-    });
-  }
 
   return parties;
 };
 
 export const findShadPartyIndex = (parties) => {
-  const numShadsArr = parties.map((pt) => pt.filter((pl) => pl.isShad).length);
+  console.log('find shad parties index', parties);
+  const numShadsArr = parties.map(
+    (pt) => pt.players.filter((pl) => pl.isShad).length
+  );
   const shadPartyIndex = findLastIndex(numShadsArr, (numShad) => numShad !== 0);
+  console.log('find lastshad index', shadPartyIndex);
   return shadPartyIndex;
 };
 
@@ -503,13 +493,16 @@ export const mapParties = (players, parties) => {
   return [plyrs, pts];
 };
 
-export const mapPartyOrder = (players) => {
-  if (players.length < 12) return [];
+export const mapPartyOrder = (players, parties, shadPartyIndex) => {
+  // if (players.length < 12) return [];
   // res, tl, smoke, belt tables
   const tables = times(4, () => []);
   tables[0] = shuffle(players.filter((p) => p.isBs));
   tables[1] = shuffle(players.filter((p) => p.isBucc));
-  tables[2] = players.filter((p) => p.isShadParty);
+  const shadIds = parties[shadPartyIndex].players
+    .filter((p) => p.isShad)
+    .map((p) => p.id);
+  tables[2] = players.filter((p) => shadIds.includes(p.id));
   tables[2] = tables[2].sort((a, b) => a.partyIndex - b.partyIndex);
   tables[3] = players.filter((p) => p.isBelt);
   return tables;

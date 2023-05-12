@@ -137,7 +137,7 @@ const PlayerForm = ({
         sortedLoots: [],
         chosenIndex: -1,
         partyIndex: -1,
-        isShadParty: false,
+        // isShadParty: false,
         isShad: false,
         isBs: false,
         isBucc: false,

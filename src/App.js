@@ -17,7 +17,7 @@ import {
   rollNx,
   findShadPartyIndex,
 } from './utils/generator';
-import { Job, jobFlags } from './utils/jobs';
+import { Job, isShadParty, jobFlags } from './utils/jobs';
 import CopyRow from './components/CopyRow';
 
 function App() {
@@ -38,13 +38,18 @@ function App() {
     const savedPartyOrder = localStorage.getItem('partyOrder');
     return savedPartyOrder !== null ? JSON.parse(savedPartyOrder) : [];
   });
+  const [shadPartyIndex, setShadPartyIndex] = useState(() => {
+    const savedShadPartyIndex = localStorage.getItem('shadPartyIndex');
+    return savedShadPartyIndex !== null ? JSON.parse(savedShadPartyIndex) : -1;
+  });
 
   useEffect(() => {
     localStorage.setItem('players', JSON.stringify(players));
     localStorage.setItem('bonus', JSON.stringify(bonusArray));
     localStorage.setItem('parties', JSON.stringify(partyArray));
     localStorage.setItem('partyOrder', JSON.stringify(partyOrderArray));
-  }, [players, bonusArray, partyArray, partyOrderArray]);
+    localStorage.setItem('shadpartyIndex', JSON.stringify(shadPartyIndex));
+  }, [players, bonusArray, partyArray, partyOrderArray, shadPartyIndex]);
 
   const inputRef = useRef(null);
 
@@ -80,7 +85,8 @@ function App() {
   const handleJobChange = (id, i) => {
     const player = players.find((p) => p.id === id);
     let changedPlayer = { ...player };
-    let shadsInOldShadParty = [];
+    let newShadPartyIndex = shadPartyIndex;
+    console.log('new iteration s had index', shadPartyIndex);
 
     setPartyOrderArray((prevPartyOrder) => {
       const newPartyOrder = [...prevPartyOrder];
@@ -91,6 +97,7 @@ function App() {
         j < newPartyOrder.length - 1 && oldIndexWithinTable < 0; // -1 because last party order is is belt
         j += 1
       ) {
+        console.log('looping ', j);
         oldIndexWithinTable = newPartyOrder[j].findIndex((p) => p.id === id);
         if (oldIndexWithinTable >= 0) {
           oldPartyTablesIndex = j;
@@ -98,21 +105,27 @@ function App() {
         // TODO when the char that got swithced had a belt, but now is not wanting one, need to send a Snackbox
       }
 
+      console.log('oldPartyTablesIndex', oldPartyTablesIndex);
+      console.log('changedplayer', changedPlayer);
+      console.log('shadPartyIndex', shadPartyIndex);
+      console.log(partyArray);
+      console.log(
+        'isshadpt',
+        isShadParty(changedPlayer, partyArray, shadPartyIndex)
+      );
       // Remove from old party Order if they were in special party
       if (
-        oldPartyTablesIndex >= 0 &&
-        (changedPlayer.isBs ||
-          changedPlayer.isBucc ||
-          changedPlayer.isShadParty)
+        // oldPartyTablesIndex >= 0 &&
+        changedPlayer.isBs ||
+        changedPlayer.isBucc ||
+        isShadParty(changedPlayer, partyArray, shadPartyIndex)
       ) {
         newPartyOrder[oldPartyTablesIndex] = newPartyOrder[
           oldPartyTablesIndex
         ].filter((p) => p.id !== id);
-      } else if (changedPlayer.isShad && changedPlayer.isShadParty) {
-        // Check who else is in the shad party
-        const currentShadPt = newPartyOrder[2].filter((p) => p.id !== id);
-        if (currentShadPt.length > 0) {
-          shadsInOldShadParty = currentShadPt.map((p) => p.id);
+        // if after removal, if they were the last shad in the smoke party, find a new smoke party
+        if (changedPlayer.isShad && newPartyOrder[2].length === 0) {
+          newShadPartyIndex = findShadPartyIndex(partyArray);
         }
       }
 
@@ -128,48 +141,39 @@ function App() {
       }
 
       if (changedPlayer.isShad) {
-        // re-check all shad in shad party
-
         const booleanArr = partyArray.map(
           (pt) => pt.players.filter((p) => p.id === id).length
         );
         const currentPartyIndex = booleanArr.findIndex((x) => !!x);
 
-        const currentShadPartyIndex = findShadPartyIndex(newPartyOrder);
-
         // Add to shad party if there is none, or they're in the smoke party
         if (
-          currentShadPartyIndex === -1 ||
-          currentPartyIndex === currentShadPartyIndex
+          newShadPartyIndex === -1 ||
+          newPartyOrder[2].length === 0 ||
+          currentPartyIndex === newShadPartyIndex
         ) {
-          // TODO when a shad is dragged into the shad party, re-render partyArray + isShadParty
-          newPartyOrder[2] = [
-            ...newPartyOrder[2],
-            { ...changedPlayer, isShadParty: true },
-          ];
+          newShadPartyIndex = currentPartyIndex;
+          newPartyOrder[2] = [...newPartyOrder[2], { ...changedPlayer }];
         }
       }
+
+      // TODO when a shad is dragged into the shad party, re-render partyArray
+
       return newPartyOrder;
     });
 
-    const getNewPlayer = (p) => {
-      if (p.id === id) {
-        return changedPlayer;
-      }
-      if (shadsInOldShadParty.includes(p.id)) {
-        return { ...p, isShadParty: false };
-      }
-      return p;
-    };
+    setShadPartyIndex(newShadPartyIndex);
 
     setPartyArray((prevParties) =>
       prevParties.map((party) => ({
         ...party,
-        players: party.players.map((p) => getNewPlayer(p)),
+        players: party.players.map((p) => (p.id === id ? changedPlayer : p)),
       }))
     );
 
-    setPlayers((prevPlayers) => prevPlayers.map((p) => getNewPlayer(p)));
+    setPlayers((prevPlayers) =>
+      prevPlayers.map((p) => (p.id === id ? changedPlayer : p))
+    );
   };
 
   const handleRemove = (id) => {
@@ -247,8 +251,10 @@ function App() {
     let [plyrs, parties] = generateTeam(players, numBs, numBucc, sortOrder);
     let pts;
     [plyrs, pts] = mapParties(plyrs, parties);
-    const partyOrder = mapPartyOrder(plyrs);
+    const shdPtIndex = findShadPartyIndex(pts);
+    const partyOrder = mapPartyOrder(plyrs, pts, shdPtIndex);
 
+    setShadPartyIndex(shdPtIndex);
     setPlayers(plyrs);
     setPartyArray(pts);
     setPartyOrderArray(partyOrder);
