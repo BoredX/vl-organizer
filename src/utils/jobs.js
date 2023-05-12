@@ -43,7 +43,7 @@ export const jobFlags = (job) => ({
 export const resetPlayer = {
   chosenIndex: -1,
   partyIndex: -1,
-  isShadParty: false,
+  // isShadParty: false,
   isShad: false,
   isBs: false,
   isBucc: false,
@@ -147,4 +147,12 @@ export const createJobPlayerList = (players, sortOrder) => {
   }
   // Each element is an array of players having that job.
   return [sortedPlayers, tierListWithPlayers];
+};
+
+export const isShadParty = (plyr, parties, shadPartyIndex) => {
+  if (shadPartyIndex === -1) return false;
+  console.log(plyr.id);
+  return (
+    plyr.isShad && parties[shadPartyIndex].players.some((p) => p.id === plyr.id)
+  );
 };
