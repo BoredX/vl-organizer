@@ -76,7 +76,6 @@ function App() {
       setPartyArray(
         newPartyArr.map((p, i) => (i === firstAvail ? [...p, newPlayer] : p))
       );
-
       setPartyOrderArray((prevPartyOrder) =>
         prevPartyOrder.map((pt, i) => {
           if (i === 0 && newPlayer.isBs) {
@@ -226,6 +225,10 @@ function App() {
       const numBelts = players.filter((p) => p.isBelt).length;
       if (numBelts < 6) {
         const player = players.find((p) => p.id === id);
+        if (player.loots.findIndex((loot) => loot === 'belt') === -1) {
+          const chosenIdx = player.chosenIndex === -1 ? 0 : player.chosenIndex;
+          player.loots[chosenIdx] = 'belt';
+        }
         setPlayers((prevPlayers) =>
           prevPlayers.map((p) => (p.id === id ? { ...player, ...newFlags } : p))
         );

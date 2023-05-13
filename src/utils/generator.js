@@ -308,6 +308,7 @@ export const generateTeam = (inputPlayers, maxNumBs, minNumBucc, sortOrder) => {
     );
     [tiers, players] = updatePlayersOnAdd(players, tiers, ps);
   }
+
   const parties = generateParties(players);
   return [players, parties];
 };
@@ -351,6 +352,7 @@ const generateParties = (players) => {
   for (let i = 0; i < bs.length; i += 1) {
     parties[i].push(bs[i]);
   }
+
   let filled = parties.map((team) => team.length);
   const se = shuffle(players.filter((p) => p.isSe));
   for (let i = 0; i < se.length; i += 1) {
@@ -477,7 +479,6 @@ export const mapParties = (players, parties) => {
       partyIndex: playerIndex,
     }));
   });
-
   const piArray = sortedTeams.flat();
   plyrs = plyrs.map((p) => {
     const piPlayer = piArray.find((pi) => p.id === pi.id);

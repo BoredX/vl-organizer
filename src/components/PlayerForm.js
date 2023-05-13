@@ -138,7 +138,7 @@ const PlayerForm = ({ onAddPlayer, editingPlayer, onSubmitEdit, inputRef }) => {
         isWar: false,
         isNl: false,
         isSair: false,
-        isBonus: true,
+        isBonus: false,
         isBelt: false,
         isNx: false,
         boxes: [],
