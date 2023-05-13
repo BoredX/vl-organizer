@@ -7,18 +7,18 @@ const CopyRow = ({
   partyArray,
   partyOrderArray,
   bonusArray,
-  shadParty,
-  nxList,
+  getShadParty,
+  getNxList,
 }) => {
   const handlePartyCopy = () => {
     if (partyArray.length > 0) {
-      const str = copyPartyInfo(partyArray, partyOrderArray, shadParty);
+      const str = copyPartyInfo(partyArray, partyOrderArray, getShadParty);
       navigator.clipboard.writeText(str);
     }
   };
 
   const handleNXCopy = () => {
-    const nx = nxList();
+    const nx = getNxList();
     if (nx.length > 0) {
       const str = orderString(nx);
       navigator.clipboard.writeText(str);
@@ -95,11 +95,11 @@ CopyRow.propTypes = {
       })
     )
   ),
-  shadParty: PropTypes.arrayOf(PropTypes.shape(playerPropType)),
-  nxList: PropTypes.arrayOf(PropTypes.shape(playerPropType)),
+  getShadParty: PropTypes.func,
+  getNxList: PropTypes.func,
 };
 
-const copyPartyInfo = (parties, partyOrder, shadParty) => {
+const copyPartyInfo = (parties, partyOrder, getShadParty) => {
   let result = '';
   parties.forEach((party, i) => {
     const igns = party.map((p) => p.names[p.chosenIndex]);
@@ -117,7 +117,7 @@ const copyPartyInfo = (parties, partyOrder, shadParty) => {
   result += `**TL Order**\n`;
   result += orderString(partyOrder[1]);
   result += `**Smoke Order**\n`;
-  result += orderString(shadParty());
+  result += orderString(getShadParty());
   result += '**Belts**\n';
   result += orderString(partyOrder[3]);
   return result;

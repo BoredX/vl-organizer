@@ -52,8 +52,7 @@ const updateWithBeltLooters = (players) => {
 export const rollNx = (players) => {
   const removedNx = players.map((p) => ({ ...p, isNx: false }));
   const bonusLooters = removedNx.filter((p) => p.isBonus && !p.isBelt);
-  const numNx = prompt('Enter number of NX dropped', '');
-  const nxLootersIndex = random(numNx, bonusLooters.length);
+  const nxLootersIndex = random(6, bonusLooters.length);
   const playersChosen = bonusLooters.filter((p, i) =>
     nxLootersIndex.includes(i)
   );

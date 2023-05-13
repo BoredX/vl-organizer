@@ -55,16 +55,21 @@ const Party = ({ party, name, onJobChange }) => {
                       <TableCell align="center" width="40%">
                         {p.names[p.chosenIndex]}
                       </TableCell>
-                      <TableCell width="15%">
-                        <Box marginRight="20%">
+                      <TableCell width="20%">
+                        <Box marginRight="10%">
                           <Select
                             size="small"
                             fullWidth
                             value={p.jobs[p.chosenIndex]}
                             onChange={(e) => handleJobChange(p.id, e)}
                           >
-                            {p.jobs.map((job) => (
-                              <MenuItem value={job}>{job}</MenuItem>
+                            {p.jobs.map((job, idx) => (
+                              <MenuItem
+                                key={`player-${p.id}-job-${idx}`}
+                                value={job}
+                              >
+                                {job}
+                              </MenuItem>
                             ))}
                           </Select>
                         </Box>

@@ -434,8 +434,8 @@ function App() {
           partyArray={partyArray}
           partyOrderArray={partyOrderArray}
           bonusArray={bonusArray}
-          shadParty={shadParty}
-          nxList={nxList}
+          getShadParty={shadParty}
+          getNxList={nxList}
         />
         <Tooltip
           placement="top"

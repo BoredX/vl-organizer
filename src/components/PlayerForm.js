@@ -195,7 +195,7 @@ const PlayerForm = ({ onAddPlayer, editingPlayer, onSubmitEdit, inputRef }) => {
           variant="contained"
           size="small"
           onClick={handleSwitchVertical}
-          style={{ width: 150 }}
+          style={{ width: 160 }}
         >
           {isVerticalInput ? 'Horizontal Input' : 'Vertical Input'}
         </Button>
