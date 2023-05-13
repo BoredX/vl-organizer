@@ -14,7 +14,7 @@ const partyNamesMap = {
   'party-E': 4,
 };
 
-const PartyRow = ({ parties, onPartyChange }) => {
+const PartyRow = ({ parties, onPartyChange, onJobChange }) => {
   const [moveablePts, setMoveablePts] = useState(parties);
 
   useEffect(() => {
@@ -62,6 +62,7 @@ const PartyRow = ({ parties, onPartyChange }) => {
               key={indexToPartyLetter(i)}
               party={party}
               name={indexToPartyLetter(i)}
+              onJobChange={onJobChange}
             />
           );
         })}
@@ -75,6 +76,7 @@ PartyRow.propTypes = {
     PropTypes.arrayOf(PropTypes.shape(playerPropType))
   ),
   onPartyChange: PropTypes.func,
+  onJobChange: PropTypes.func,
 };
 
 export default PartyRow;

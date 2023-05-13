@@ -3,10 +3,24 @@ import { Box, Button } from '@mui/material';
 import playerPropType from './playerPropType';
 import { indexToPartyLetter } from '../utils/generator';
 
-const CopyRow = ({ partyArray, partyOrderArray, bonusArray }) => {
+const CopyRow = ({
+  partyArray,
+  partyOrderArray,
+  bonusArray,
+  shadParty,
+  nxList,
+}) => {
   const handlePartyCopy = () => {
     if (partyArray.length > 0) {
-      const str = copyPartyInfo(partyArray, partyOrderArray);
+      const str = copyPartyInfo(partyArray, partyOrderArray, shadParty);
+      navigator.clipboard.writeText(str);
+    }
+  };
+
+  const handleNXCopy = () => {
+    const nx = nxList();
+    if (nx.length > 0) {
+      const str = orderString(nx);
       navigator.clipboard.writeText(str);
     }
   };
@@ -34,6 +48,9 @@ const CopyRow = ({ partyArray, partyOrderArray, bonusArray }) => {
     >
       <Button variant="contained" color="info" onClick={handlePartyCopy}>
         Copy party info
+      </Button>
+      <Button variant="contained" color="info" onClick={handleNXCopy}>
+        Copy NX
       </Button>
       <Button variant="contained" color="info" onClick={handleBonusCopyDiscord}>
         Copy bonus (Discord)
@@ -78,9 +95,11 @@ CopyRow.propTypes = {
       })
     )
   ),
+  shadParty: PropTypes.arrayOf(PropTypes.shape(playerPropType)),
+  nxList: PropTypes.arrayOf(PropTypes.shape(playerPropType)),
 };
 
-const copyPartyInfo = (parties, partyOrder) => {
+const copyPartyInfo = (parties, partyOrder, shadParty) => {
   let result = '';
   parties.forEach((party, i) => {
     const igns = party.map((p) => p.names[p.chosenIndex]);
@@ -97,9 +116,8 @@ const copyPartyInfo = (parties, partyOrder) => {
   result += orderString(partyOrder[0]);
   result += `**TL Order**\n`;
   result += orderString(partyOrder[1]);
-  result += `**Res Order**\n`;
-  result += orderString(partyOrder[2]);
-
+  result += `**Smoke Order**\n`;
+  result += orderString(shadParty());
   result += '**Belts**\n';
   result += orderString(partyOrder[3]);
   return result;
@@ -111,7 +129,7 @@ const orderString = (party) =>
 export const copyBonusDiscord = (bonusArray) =>
   bonusArray
     .map((bonus) =>
-      bonus.map((b) => `${b.boxes.padEnd(6, ' ') + b.name}`).join('\n')
+      bonus.map((b) => `${b.boxes.padEnd(7, ' ') + b.name}`).join('\n')
     )
     .join('\n');
 

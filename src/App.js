@@ -370,6 +370,8 @@ function App() {
     return index >= 0 ? partyArray[index].filter((p) => p.isShad) : [];
   };
 
+  const nxList = () => players.filter((p) => p.isNx);
+
   return (
     <Box my={7} display="flex" alignItems="center" justifyContent="center">
       <Stack spacing={6}>
@@ -418,7 +420,11 @@ function App() {
           numBsSuggest={numSuggestedBs(players)}
           onGenerateTeam={handleGenerateTeam}
         />
-        <PartyRow parties={partyArray} onPartyChange={handleChangeParty} />
+        <PartyRow
+          parties={partyArray}
+          onPartyChange={handleChangeParty}
+          onJobChange={handleJobChange}
+        />
         <MiscRow
           partyOrders={partyOrderArray}
           onOrderChange={handleOrderChange}
@@ -428,6 +434,8 @@ function App() {
           partyArray={partyArray}
           partyOrderArray={partyOrderArray}
           bonusArray={bonusArray}
+          shadParty={shadParty}
+          nxList={nxList}
         />
         <Tooltip
           placement="top"
