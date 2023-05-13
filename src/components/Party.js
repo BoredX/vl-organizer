@@ -1,6 +1,9 @@
 import PropTypes from 'prop-types';
 import {
+  Box,
+  MenuItem,
   Paper,
+  Select,
   Table,
   TableBody,
   TableCell,
@@ -11,55 +14,78 @@ import {
 import { Draggable, Droppable } from '@hello-pangea/dnd';
 import playerPropType from './playerPropType';
 
-const Party = ({ party, name }) => (
-  <TableContainer component={Paper} elevation={10}>
-    <Table>
-      <TableHead>
-        <TableRow>
-          <TableCell colSpan={2} align="center">
-            Party {name}
-          </TableCell>
-        </TableRow>
-      </TableHead>
-      <Droppable droppableId={`party-${name}`}>
-        {(providedDroppable) => (
-          <TableBody
-            key={`party-${name}`}
-            ref={providedDroppable.innerRef}
-            {...providedDroppable.droppableProps}
-            align="center"
-          >
-            {party.map((p, i) => (
-              <Draggable key={p.id} draggableId={String(p.id)} index={i}>
-                {(providedDraggable) => (
-                  <TableRow
-                    key={p.id}
-                    ref={providedDraggable.innerRef}
-                    {...providedDraggable.draggableProps}
-                    {...providedDraggable.dragHandleProps}
-                    sx={{
-                      cursor: 'grab',
-                    }}
-                  >
-                    <TableCell align="center">
-                      {p.names[p.chosenIndex]}
-                    </TableCell>
-                    <TableCell width="30%">{p.jobs[p.chosenIndex]}</TableCell>
-                  </TableRow>
-                )}
-              </Draggable>
-            ))}
-            {providedDroppable.placeholder}
-          </TableBody>
-        )}
-      </Droppable>
-    </Table>
-  </TableContainer>
-);
+const Party = ({ party, name, onJobChange }) => {
+  const handleJobChange = (id, event) => {
+    const jobIndex = party
+      .find((p) => p.id === id)
+      .jobs.findIndex((job) => job === event.target.value);
+    onJobChange(id, jobIndex);
+  };
+
+  return (
+    <TableContainer component={Paper} elevation={10}>
+      <Table>
+        <TableHead>
+          <TableRow>
+            <TableCell colSpan={2} align="center">
+              Party {name}
+            </TableCell>
+          </TableRow>
+        </TableHead>
+        <Droppable droppableId={`party-${name}`}>
+          {(providedDroppable) => (
+            <TableBody
+              key={`party-${name}`}
+              ref={providedDroppable.innerRef}
+              {...providedDroppable.droppableProps}
+              align="center"
+            >
+              {party.map((p, i) => (
+                <Draggable key={p.id} draggableId={String(p.id)} index={i}>
+                  {(providedDraggable) => (
+                    <TableRow
+                      key={p.id}
+                      ref={providedDraggable.innerRef}
+                      {...providedDraggable.draggableProps}
+                      {...providedDraggable.dragHandleProps}
+                      sx={{
+                        cursor: 'grab',
+                      }}
+                    >
+                      <TableCell align="center" width="40%">
+                        {p.names[p.chosenIndex]}
+                      </TableCell>
+                      <TableCell width="15%">
+                        <Box marginRight="20%">
+                          <Select
+                            size="small"
+                            fullWidth
+                            value={p.jobs[p.chosenIndex]}
+                            onChange={(e) => handleJobChange(p.id, e)}
+                          >
+                            {p.jobs.map((job) => (
+                              <MenuItem value={job}>{job}</MenuItem>
+                            ))}
+                          </Select>
+                        </Box>
+                      </TableCell>
+                    </TableRow>
+                  )}
+                </Draggable>
+              ))}
+              {providedDroppable.placeholder}
+            </TableBody>
+          )}
+        </Droppable>
+      </Table>
+    </TableContainer>
+  );
+};
 
 Party.propTypes = {
   name: PropTypes.string,
   party: PropTypes.arrayOf(PropTypes.shape(playerPropType)),
+  onJobChange: PropTypes.func,
 };
 
 export default Party;
