@@ -1,6 +1,7 @@
 import PropTypes from 'prop-types';
 import { Box, Button } from '@mui/material';
 import playerPropType from './playerPropType';
+import { indexToPartyLetter } from '../utils/generator';
 
 const CopyRow = ({ partyArray, partyOrderArray, bonusArray }) => {
   const handlePartyCopy = () => {
@@ -64,10 +65,7 @@ const CopyRow = ({ partyArray, partyOrderArray, bonusArray }) => {
 
 CopyRow.propTypes = {
   partyArray: PropTypes.arrayOf(
-    PropTypes.shape({
-      name: PropTypes.string,
-      players: PropTypes.arrayOf(PropTypes.shape(playerPropType)),
-    })
+    PropTypes.arrayOf(PropTypes.shape(playerPropType))
   ),
   partyOrderArray: PropTypes.arrayOf(
     PropTypes.arrayOf(PropTypes.shape(playerPropType))
@@ -84,11 +82,11 @@ CopyRow.propTypes = {
 
 const copyPartyInfo = (parties, partyOrder) => {
   let result = '';
-  parties.forEach((party) => {
-    const igns = party.players.map((p) => p.names[p.chosenIndex]);
+  parties.forEach((party, i) => {
+    const igns = party.map((p) => p.names[p.chosenIndex]);
 
-    if (party.players.length > 1) {
-      result += `**Team ${party.name}**\n`;
+    if (party.length > 0) {
+      result += `**Team ${indexToPartyLetter(i)}**\n`;
       result += `/partyinvite ${igns.join(' ')}\n\n`;
     }
   });

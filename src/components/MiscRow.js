@@ -1,6 +1,7 @@
 import PropTypes from 'prop-types';
 import { Box } from '@mui/material';
 import MiscTable from './MiscTable';
+import playerPropType from './playerPropType';
 
 const MiscRow = ({ partyOrders, onOrderChange, shadParty }) => (
   <Box display="flex" gap={4}>
@@ -60,7 +61,9 @@ const MiscRow = ({ partyOrders, onOrderChange, shadParty }) => (
 );
 
 MiscRow.propTypes = {
-  partyOrders: PropTypes.arrayOf(PropTypes.arrayOf(PropTypes.object)),
+  partyOrders: PropTypes.arrayOf(
+    PropTypes.arrayOf(PropTypes.shape(playerPropType))
+  ),
   onOrderChange: PropTypes.func,
   shadParty: PropTypes.func,
 };

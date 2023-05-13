@@ -17,7 +17,7 @@ import {
   rollNx,
   findShadPartyIndex,
 } from './utils/generator';
-import { Job, jobFlags } from './utils/jobs';
+import { jobFlags } from './utils/jobs';
 import CopyRow from './components/CopyRow';
 
 function App() {
@@ -32,11 +32,13 @@ function App() {
   });
   const [partyArray, setPartyArray] = useState(() => {
     const savedParty = localStorage.getItem('parties');
-    return savedParty !== null ? JSON.parse(savedParty) : [];
+    return savedParty !== null ? JSON.parse(savedParty) : [[], [], [], [], []];
   });
   const [partyOrderArray, setPartyOrderArray] = useState(() => {
     const savedPartyOrder = localStorage.getItem('partyOrder');
-    return savedPartyOrder !== null ? JSON.parse(savedPartyOrder) : [];
+    return savedPartyOrder !== null
+      ? JSON.parse(savedPartyOrder)
+      : [[], [], [], []]; // bs, tl, smoke(always empty now), belt
   });
 
   useEffect(() => {
@@ -59,27 +61,69 @@ function App() {
     });
   };
 
-  const handleNewPlayer = (ps) => {
-    if (ps.length <= 30) {
-      setPlayers(
-        ps.map((p, index) => ({
-          ...p,
-          id: index,
-        }))
+  const handleNewPlayer = (plyr) => {
+    if (players.length <= 30) {
+      const id = players.length;
+
+      const newPartyArr = [...partyArray];
+      const counts = newPartyArr.map((p) => p.length);
+      const firstAvail = counts.findIndex((c) => c < 6);
+
+      const ptIndex = newPartyArr[firstAvail].length;
+      const job = plyr.jobs[0];
+      const jFlags = jobFlags(job);
+      const newPlayer = { ...plyr, id, partyIndex: ptIndex, ...jFlags };
+      setPartyArray(
+        newPartyArr.map((p, i) => (i === firstAvail ? [...p, newPlayer] : p))
       );
+
+      setPartyOrderArray((prevPartyOrder) =>
+        prevPartyOrder.map((pt, i) => {
+          if (i === 0 && newPlayer.isBs) {
+            return [...pt, newPlayer];
+          }
+          if (i === 1 && newPlayer.isBucc) {
+            return [...pt, newPlayer];
+          }
+          return pt;
+        })
+      );
+      setPlayers([...players, newPlayer]);
     }
   };
 
   const handleUpdatePlayer = (updatedPlayer) => {
-    setPlayers(
-      players.map((p) => (p.id === updatedPlayer.id ? updatedPlayer : p))
+    setPlayers((prevPlayers) =>
+      prevPlayers.map((p) => (p.id === updatedPlayer.id ? updatedPlayer : p))
+    );
+    setPartyArray((prevPartyArray) =>
+      prevPartyArray.map((pt) =>
+        pt.map((p) => (p.id === updatedPlayer.id ? updatedPlayer : p))
+      )
+    );
+    setPartyOrderArray((prevOrderPartyArray) =>
+      prevOrderPartyArray.map((pt, i) => {
+        const filteredPts = pt.filter((p) => p.id !== updatedPlayer.id);
+        if (i === 0 && updatedPlayer.isBs) {
+          return [...filteredPts, updatedPlayer];
+        }
+        if (i === 1 && updatedPlayer.isBucc) {
+          return [...filteredPts, updatedPlayer];
+        }
+        return filteredPts;
+      })
     );
     setEditingPlayer(null);
   };
 
   const handleJobChange = (id, chosenIndex) => {
     const player = players.find((p) => p.id === id);
-    let changedPlayer = { ...player };
+    const newJob = player.jobs[chosenIndex];
+    const changedPlayer = {
+      ...player,
+      chosenIndex,
+      ...jobFlags(newJob),
+    };
 
     setPartyOrderArray((prevPartyOrder) => {
       const newPartyOrder = [...prevPartyOrder];
@@ -88,33 +132,24 @@ function App() {
 
       for (
         let j = 0;
-        j < newPartyOrder.length - 1 && oldIndexWithinTable < 0; // -1 because last party order is is belt
+        j < newPartyOrder.length - 1 && oldIndexWithinTable < 0; // -1 because last party order is belt
         j += 1
       ) {
         oldIndexWithinTable = newPartyOrder[j].findIndex((p) => p.id === id);
         if (oldIndexWithinTable >= 0) {
           oldPartyTablesIndex = j;
         }
-        // TODO when the char that got swithced had a belt, but now is not wanting one, need to send a Snackbox
       }
 
       // Remove from old party Order if they were in special party
-      if (
-        oldPartyTablesIndex >= 0 &&
-        (changedPlayer.isBs || changedPlayer.isBucc)
-      ) {
+      if (oldPartyTablesIndex >= 0 && (player.isBs || player.isBucc)) {
         newPartyOrder[oldPartyTablesIndex] = newPartyOrder[
           oldPartyTablesIndex
         ].filter((p) => p.id !== id);
       }
 
-      // reset jobs - and do new player stuff
-      const newJob = changedPlayer.jobs[chosenIndex];
-      changedPlayer = {
-        ...changedPlayer,
-        chosenIndex,
-        ...jobFlags(newJob),
-      };
+      // do new player stuff
+
       // Check if they should be put into a new one
       if (changedPlayer.isBs) {
         newPartyOrder[0] = [...newPartyOrder[0], { ...changedPlayer }];
@@ -126,10 +161,13 @@ function App() {
     });
 
     setPartyArray((prevParties) =>
-      prevParties.map((party) => ({
-        ...party,
-        players: party.players.map((p) => (p.id === id ? changedPlayer : p)),
-      }))
+      prevParties.map((pt) => {
+        const plyrIndex = pt.findIndex((p) => p.id === id);
+        if (plyrIndex >= 0) {
+          return pt.map((p, i) => (i === plyrIndex ? changedPlayer : p));
+        }
+        return pt;
+      })
     );
 
     setPlayers((prevPlayers) =>
@@ -146,13 +184,22 @@ function App() {
       }));
     });
     setPartyArray((prevParties) =>
-      prevParties.map((party) => ({
-        ...party,
-        players: party.players.filter((p) => p.id !== id),
-      }))
+      prevParties.map((pt) => {
+        const updatedPlayers = pt.filter((p) => p.id !== id);
+        return updatedPlayers.map((p, index) => ({
+          ...p,
+          id: index,
+        }));
+      })
     );
     setPartyOrderArray((prevPartyOrder) =>
-      prevPartyOrder.map((party) => party.filter((p) => p.id !== id))
+      prevPartyOrder.map((pt) => {
+        const updatedPlayers = pt.filter((p) => p.id !== id);
+        return updatedPlayers.map((p, index) => ({
+          ...p,
+          id: index,
+        }));
+      })
     );
   };
 
@@ -166,11 +213,46 @@ function App() {
       setPlayers(
         players.map((p) => (p.id === id ? { ...p, isBelt: false } : p))
       );
+      // remove belt from belt list
+      setPartyOrderArray((prevParties) =>
+        prevParties.map((pt, i) => {
+          if (i === 3) {
+            return pt.filter((p) => p.id !== id);
+          }
+          return pt;
+        })
+      );
     } else {
       const numBelts = players.filter((p) => p.isBelt).length;
       if (numBelts < 6) {
-        setPlayers(
-          players.map((p) => (p.id === id ? { ...p, ...newFlags } : p))
+        const player = players.find((p) => p.id === id);
+        setPlayers((prevPlayers) =>
+          prevPlayers.map((p) => (p.id === id ? { ...player, ...newFlags } : p))
+        );
+
+        setPartyArray((prevParties) =>
+          prevParties.map((pt) => {
+            const plyrIndex = pt.findIndex((p) => p.id === id);
+            if (plyrIndex === -1) {
+              return pt;
+            }
+            return pt.map((p, i) =>
+              i === plyrIndex ? { ...player, ...newFlags } : p
+            );
+          })
+        );
+
+        setPartyOrderArray((prevParties) =>
+          prevParties.map((pt, i) => {
+            if (i === 3) {
+              const plyr = pt.find((p) => p.id === id);
+              if (!plyr) {
+                return [...pt, { ...player, ...newFlags }];
+              }
+              return pt;
+            }
+            return pt;
+          })
         );
       }
     }
@@ -187,6 +269,15 @@ function App() {
       );
     } else {
       setPlayers(players.map((p) => (p.id === id ? { ...p, ...newFlags } : p)));
+
+      setPartyOrderArray((prevPartyOrder) =>
+        prevPartyOrder.map((pt, i) => {
+          if (i === 3) {
+            return pt.filter((p) => p.id !== id);
+          }
+          return pt;
+        })
+      );
     }
   };
 
@@ -197,7 +288,17 @@ function App() {
   };
 
   const handleRollLoot = () => {
-    setPlayers(rollLoot(players));
+    const newPlayers = rollLoot(players);
+    setPlayers(newPlayers);
+
+    setPartyOrderArray((prevPartyOrder) =>
+      prevPartyOrder.map((pt, i) => {
+        if (i === 3) {
+          return newPlayers.filter((p) => p.isBelt);
+        }
+        return pt;
+      })
+    );
   };
 
   const handleRollNx = () => {
@@ -227,28 +328,24 @@ function App() {
     destPtIndex
   ) => {
     const newParty = [...parties];
-    newParty[sourcePtIndex].players = newParty[sourcePtIndex].players.map(
-      (p, i) => ({
-        ...p,
-        partyIndex: i,
-      })
-    );
-    newParty[destPtIndex].players = newParty[destPtIndex].players.map(
-      (p, i) => ({
-        ...p,
-        partyIndex: i,
-      })
-    );
+    newParty[sourcePtIndex] = newParty[sourcePtIndex].map((p, i) => ({
+      ...p,
+      partyIndex: i,
+    }));
+    newParty[destPtIndex] = newParty[destPtIndex].map((p, i) => ({
+      ...p,
+      partyIndex: i,
+    }));
     setPartyArray(newParty);
 
     setPlayers((oldPlayers) =>
       oldPlayers.map((p) => {
-        let player = newParty[sourcePtIndex].players.find(
+        let player = newParty[sourcePtIndex].find(
           (pPlayers) => pPlayers.id === p.id
         );
 
         if (!player) {
-          player = newParty[destPtIndex].players.find(
+          player = newParty[destPtIndex].find(
             (pPlayers) => pPlayers.id === p.id
           );
         }
@@ -267,7 +364,7 @@ function App() {
 
   const shadParty = () => {
     const index = findShadPartyIndex(partyArray);
-    return partyArray[index].players.filter((p) => p.isShad);
+    return index >= 0 ? partyArray[index].filter((p) => p.isShad) : [];
   };
 
   return (
@@ -279,7 +376,7 @@ function App() {
         <Box display="flex" justifyContent="center" columnGap={10}>
           <Box>
             <PlayerForm
-              players={players}
+              // players={players}
               onAddPlayer={handleNewPlayer}
               editingPlayer={editingPlayer}
               inputRef={inputRef}
@@ -312,8 +409,9 @@ function App() {
           onJobChange={handleJobChange}
         />
         <TeamForm
-          bsSigned={players.filter((p) => p.jobs.includes(Job.BS)).length}
-          buccSigned={players.filter((p) => p.jobs.includes(Job.Bucc)).length}
+          players={players}
+          // bsSigned={players.filter((p) => p.jobs.includes(Job.BS)).length}
+          // buccSigned={players.filter((p) => p.jobs.includes(Job.Bucc)).length}
           numBsSuggest={numSuggestedBs(players)}
           onGenerateTeam={handleGenerateTeam}
         />

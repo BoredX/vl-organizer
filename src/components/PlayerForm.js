@@ -2,7 +2,7 @@ import { Box, Button, Stack, TextField } from '@mui/material';
 import { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import playerPropType from './playerPropType';
-import { reverseJobNamesMap } from '../utils/jobs';
+import { jobFlags, reverseJobNamesMap } from '../utils/jobs';
 
 // split on comma, pipe, slash, space
 const parseDelimiters = (input) => input.split(/,|\||\/|\s+/);
@@ -84,13 +84,7 @@ const formatPlayer = (p) => {
   return `${names}\n${jobs}\n${loots}`;
 };
 
-const PlayerForm = ({
-  players,
-  onAddPlayer,
-  editingPlayer,
-  onSubmitEdit,
-  inputRef,
-}) => {
+const PlayerForm = ({ onAddPlayer, editingPlayer, onSubmitEdit, inputRef }) => {
   const [input, setInput] = useState();
   const [error, setError] = useState(false);
   const [isVerticalInput, setIsVerticalInput] = useState(true);
@@ -135,7 +129,7 @@ const PlayerForm = ({
         ...inputPlayer,
         sortedJobs: [],
         sortedLoots: [],
-        chosenIndex: -1,
+        chosenIndex: 0,
         partyIndex: -1,
         isShad: false,
         isBs: false,
@@ -144,19 +138,21 @@ const PlayerForm = ({
         isWar: false,
         isNl: false,
         isSair: false,
-        isBonus: false,
+        isBonus: true,
         isBelt: false,
         isNx: false,
         boxes: [],
       };
       if (editingPlayer === null) {
-        onAddPlayer([...players, inputPlayer]);
+        onAddPlayer(inputPlayer);
       } else {
         onSubmitEdit({
           ...editingPlayer,
           names: inputPlayer.names,
           jobs: inputPlayer.jobs,
           loots: inputPlayer.loots,
+          chosenIndex: 0,
+          ...jobFlags(inputPlayer.jobs[0]),
         });
       }
       setInput('');
@@ -209,7 +205,7 @@ const PlayerForm = ({
 };
 
 PlayerForm.propTypes = {
-  players: PropTypes.arrayOf(PropTypes.shape(playerPropType)),
+  // players: PropTypes.arrayOf(PropTypes.shape(playerPropType)),
   onAddPlayer: PropTypes.func,
   editingPlayer: PropTypes.shape(playerPropType),
   onSubmitEdit: PropTypes.func,

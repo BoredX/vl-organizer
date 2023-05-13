@@ -16,11 +16,13 @@ import {
 } from '@mui/material';
 import { range } from 'lodash';
 import { useState } from 'react';
+import playerPropType from './playerPropType';
+import { Job } from '../utils/jobs';
 
-const TeamForm = ({ bsSigned, buccSigned, numBsSuggest, onGenerateTeam }) => {
+const TeamForm = ({ players, numBsSuggest, onGenerateTeam }) => {
   const [sortOrder, setSortOrder] = useState('player');
   const [numBs, setNumBs] = useState(numBsSuggest);
-  const [numBucc, setNumBucc] = useState(4);
+  const [numBucc, setNumBucc] = useState('');
 
   const handleSortChange = (event) => {
     setSortOrder(event.target.value);
@@ -33,6 +35,9 @@ const TeamForm = ({ bsSigned, buccSigned, numBsSuggest, onGenerateTeam }) => {
   const handleBuccChange = (event) => {
     setNumBucc(event.target.value);
   };
+
+  const bsSigned = players.filter((p) => p.jobs.includes(Job.BS)).length;
+  const buccSigned = players.filter((p) => p.jobs.includes(Job.Bucc)).length;
 
   return (
     <Box>
@@ -47,7 +52,11 @@ const TeamForm = ({ bsSigned, buccSigned, numBsSuggest, onGenerateTeam }) => {
           >
             <FormControl>
               <InputLabel>BS</InputLabel>
-              <Select value={numBs} onChange={handleBsChange} label="BS">
+              <Select
+                value={Math.max(1, numBs)}
+                onChange={handleBsChange}
+                label="BS"
+              >
                 {range(1, Math.min(bsSigned + 1, 6)).map((x) => (
                   <MenuItem key={x} value={x}>
                     {x}
@@ -58,7 +67,11 @@ const TeamForm = ({ bsSigned, buccSigned, numBsSuggest, onGenerateTeam }) => {
             </FormControl>
             <FormControl>
               <InputLabel>Buccs</InputLabel>
-              <Select label="Buccs" value={numBucc} onChange={handleBuccChange}>
+              <Select
+                label="Buccs"
+                value={Math.max(1, numBucc)}
+                onChange={handleBuccChange}
+              >
                 {range(1, Math.min(buccSigned + 1, 6)).map((x) => (
                   <MenuItem key={x} value={x}>
                     {x}
@@ -105,8 +118,7 @@ const TeamForm = ({ bsSigned, buccSigned, numBsSuggest, onGenerateTeam }) => {
 };
 
 TeamForm.propTypes = {
-  bsSigned: PropTypes.number,
-  buccSigned: PropTypes.number,
+  players: PropTypes.arrayOf(PropTypes.shape(playerPropType)),
   numBsSuggest: PropTypes.number,
   onGenerateTeam: PropTypes.func,
 };
