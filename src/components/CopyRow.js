@@ -85,8 +85,10 @@ const copyPartyInfo = (parties, partyOrder) => {
   parties.forEach((party, i) => {
     const igns = party.map((p) => p.names[p.chosenIndex]);
 
-    if (party.length > 0) {
-      result += `**Team ${indexToPartyLetter(i)}**\n`;
+    if (party.length > 1) {
+      const ldr = ` - **Leader**: ${igns[0]}`;
+      const jr = party.length > 2 ? ` - **Jr**: ${igns[1]}` : '';
+      result += `**Team ${indexToPartyLetter(i)}**${ldr}${jr}\n`;
       result += `/partyinvite ${igns.join(' ')}\n\n`;
     }
   });
