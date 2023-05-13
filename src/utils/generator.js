@@ -483,10 +483,6 @@ export const mapParties = (players, parties) => {
     const piPlayer = piArray.find((pi) => p.id === pi.id);
     return { ...piPlayer };
   });
-  console.log('mapparties start');
-  console.log('plyrs', plyrs);
-  console.log('sortedTeams', sortedTeams);
-  console.log('mapparties fin');
   return [plyrs, sortedTeams];
 };
 

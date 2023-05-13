@@ -2,7 +2,7 @@ import { Box, Button, Stack, TextField } from '@mui/material';
 import { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import playerPropType from './playerPropType';
-import { reverseJobNamesMap } from '../utils/jobs';
+import { jobFlags, reverseJobNamesMap } from '../utils/jobs';
 
 // split on comma, pipe, slash, space
 const parseDelimiters = (input) => input.split(/,|\||\/|\s+/);
@@ -152,6 +152,7 @@ const PlayerForm = ({ onAddPlayer, editingPlayer, onSubmitEdit, inputRef }) => {
           jobs: inputPlayer.jobs,
           loots: inputPlayer.loots,
           chosenIndex: 0,
+          ...jobFlags(inputPlayer.jobs[0]),
         });
       }
       setInput('');

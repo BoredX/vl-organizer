@@ -16,8 +16,10 @@ import {
 } from '@mui/material';
 import { range } from 'lodash';
 import { useState } from 'react';
+import playerPropType from './playerPropType';
+import { Job } from '../utils/jobs';
 
-const TeamForm = ({ bsSigned, buccSigned, numBsSuggest, onGenerateTeam }) => {
+const TeamForm = ({ players, numBsSuggest, onGenerateTeam }) => {
   const [sortOrder, setSortOrder] = useState('player');
   const [numBs, setNumBs] = useState(numBsSuggest);
   const [numBucc, setNumBucc] = useState('');
@@ -33,6 +35,9 @@ const TeamForm = ({ bsSigned, buccSigned, numBsSuggest, onGenerateTeam }) => {
   const handleBuccChange = (event) => {
     setNumBucc(event.target.value);
   };
+
+  const bsSigned = players.filter((p) => p.jobs.includes(Job.BS)).length;
+  const buccSigned = players.filter((p) => p.jobs.includes(Job.Bucc)).length;
 
   return (
     <Box>
@@ -113,8 +118,7 @@ const TeamForm = ({ bsSigned, buccSigned, numBsSuggest, onGenerateTeam }) => {
 };
 
 TeamForm.propTypes = {
-  bsSigned: PropTypes.number,
-  buccSigned: PropTypes.number,
+  players: PropTypes.arrayOf(PropTypes.shape(playerPropType)),
   numBsSuggest: PropTypes.number,
   onGenerateTeam: PropTypes.func,
 };
