@@ -111,6 +111,12 @@ const copyPartyInfo = (parties, partyOrder, getShadParty) => {
       result += `/partyinvite ${igns.join(' ')}\n\n`;
     }
   });
+  if (partyOrder[0].length > 0) {
+    const firstBs = partyOrder[0][0];
+    const firstBsName = firstBs.names[firstBs.chosenIndex];
+    result += `**Bishop Party** - **Leader**: ${firstBsName}\n`;
+    result += copyBsParty(partyOrder);
+  }
 
   result += `**Res Order**\n`;
   result += orderString(partyOrder[0]);
@@ -135,5 +141,28 @@ export const copyBonusDiscord = (bonusArray) =>
 
 export const copyBonusInGame = (bonus) =>
   bonus.map((b) => `${`${b.boxes} ${b.name}`}`).join(' | ');
+
+const copyBsParty = (partyOrder) => {
+  let bses = partyOrder[0]
+    .map((p) => p.names[p.chosenIndex])
+    .slice(1)
+    .join(' ');
+
+  const buccs = partyOrder[1].map((p) => p.names[p.chosenIndex]).join(' ');
+  if (bses !== '') {
+    bses += ' ';
+  }
+  const testStr = `/partyinvite ${bses}${buccs}`;
+  let result = '';
+  if (testStr.length > 70) {
+    const limitedString = testStr.substring(0, 70);
+    const idx = limitedString.lastIndexOf(' ');
+    result += `${testStr.substring(0, idx)}\n`;
+    result += `/partyinvite${testStr.substring(idx)}\n\n`;
+  } else {
+    result = `${testStr}\n\n`;
+  }
+  return result;
+};
 
 export default CopyRow;
