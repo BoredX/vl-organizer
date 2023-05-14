@@ -1,6 +1,7 @@
-import { Box, Button, Stack, TextField } from '@mui/material';
+import { Box, Button, Stack, TextField, Typography } from '@mui/material';
 import { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
+import { ArrowDownward, ArrowRightAlt } from '@mui/icons-material';
 import playerPropType from './playerPropType';
 import { jobFlags, reverseJobNamesMap } from '../utils/jobs';
 
@@ -197,7 +198,15 @@ const PlayerForm = ({ onAddPlayer, editingPlayer, onSubmitEdit, inputRef }) => {
           onClick={handleSwitchVertical}
           style={{ width: 160 }}
         >
-          {isVerticalInput ? 'Horizontal Input' : 'Vertical Input'}
+          {isVerticalInput ? (
+            <Stack direction="row">
+              <Typography>Text</Typography> <ArrowDownward />
+            </Stack>
+          ) : (
+            <Stack direction="row">
+              <Typography>Text</Typography> <ArrowRightAlt />
+            </Stack>
+          )}
         </Button>
       </Box>
     </Stack>

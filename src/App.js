@@ -439,7 +439,11 @@ function App() {
         />
         <Tooltip
           placement="top"
-          title="Supports random layout for 12+ looters. NX looters have less box"
+          title={
+            <Typography fontSize={14}>
+              Supports random layout for 12+ looters. NX looters have less box
+            </Typography>
+          }
         >
           <Button
             variant="contained"

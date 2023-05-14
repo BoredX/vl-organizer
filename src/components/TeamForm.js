@@ -13,6 +13,7 @@ import {
   RadioGroup,
   Select,
   Tooltip,
+  Typography,
 } from '@mui/material';
 import { range } from 'lodash';
 import { useState } from 'react';
@@ -82,7 +83,12 @@ const TeamForm = ({ players, numBsSuggest, onGenerateTeam }) => {
             </FormControl>
             <FormControl>
               <Tooltip
-                title="Belt looters choose which char to bring (first ign), or go with best job"
+                title={
+                  <Typography fontSize={14}>
+                    Toggles belt looters between sign up order, or going with
+                    the best dps belt char
+                  </Typography>
+                }
                 placement="top"
               >
                 <FormLabel>Preference</FormLabel>
@@ -103,7 +109,15 @@ const TeamForm = ({ players, numBsSuggest, onGenerateTeam }) => {
           </Box>
         </form>
       </Paper>
-      <Tooltip placement="top" title="Requires 12 or more signs">
+      <Tooltip
+        placement="top"
+        title={
+          <Typography fontSize={14}>
+            Prioritizes players that won Belt roll. Randomizes 4 NLs, 2 SE, 2
+            Warriors
+          </Typography>
+        }
+      >
         <Button
           fullWidth
           variant="contained"
