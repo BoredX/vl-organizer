@@ -1,7 +1,7 @@
 import PropTypes from 'prop-types';
 
 const playerPropType = {
-  id: PropTypes.number,
+  id: PropTypes.string,
   names: PropTypes.arrayOf(PropTypes.string),
   jobs: PropTypes.arrayOf(PropTypes.string),
   loots: PropTypes.arrayOf(PropTypes.string),

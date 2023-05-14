@@ -2,12 +2,12 @@ import { invert, random } from 'lodash';
 
 const jobNameMapping = {
   NL: ['nl'],
-  Shad: ['shadower', 'shad'],
-  DK: ['dk', 'drk', 'dark'],
-  Pally: ['pally', 'paly'],
-  Hero: ['hero'],
+  Shad: ['shadower', 'shad', 'shd'],
+  DK: ['dk', 'drk', 'dark', 'dark knight'],
+  Pally: ['pally', 'paly', 'paladin'],
+  Hero: ['hero', 'hr'],
   Bucc: ['bucc', 'buc', 'buccaneer'],
-  Sair: ['sair'],
+  Sair: ['sair', 'corsair'],
   SE: ['mm', 'bm', 'se'],
   BS: ['bs', 'bishop', 'bish', 'bis'],
 };

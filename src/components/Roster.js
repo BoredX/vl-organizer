@@ -37,12 +37,12 @@ const Roster = ({
         </TableRow>
       </TableHead>
       <TableBody>
-        {players.map((player) => (
+        {players.map((player, idx) => (
           <TableRow
             key={player.id}
             sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
           >
-            <TableCell>{player.id + 1}</TableCell>
+            <TableCell>{idx + 1}</TableCell>
             <TableCell>{player.names.join(', ')}</TableCell>
             <TableCell>
               <Stack direction="row">
@@ -50,7 +50,7 @@ const Roster = ({
                   const file = job.toLowerCase();
                   return (
                     <IconButton
-                      key={`${player.id}-${job}`}
+                      key={`${player.id}-job-${i}`}
                       onClick={() => onJobChange(player.id, i)}
                     >
                       <Box>

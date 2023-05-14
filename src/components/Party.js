@@ -41,7 +41,11 @@ const Party = ({ party, name, onJobChange }) => {
               align="center"
             >
               {party.map((p, i) => (
-                <Draggable key={p.id} draggableId={String(p.id)} index={i}>
+                <Draggable
+                  key={`draggable-${String(p.id)}`}
+                  draggableId={`draggable-${String(p.id)}`}
+                  index={i}
+                >
                   {(providedDraggable) => (
                     <TableRow
                       key={p.id}

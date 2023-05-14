@@ -1,6 +1,7 @@
 import { Box, Stack, Button, Typography, Tooltip } from '@mui/material';
 import './index.css';
 import { useEffect, useRef, useState } from 'react';
+import { v4 as uuid } from 'uuid';
 import PlayerForm from './components/PlayerForm';
 import Roster from './components/Roster';
 import PartyRow from './components/PartyRow';
@@ -63,7 +64,7 @@ function App() {
 
   const handleNewPlayer = (plyr) => {
     if (players.length <= 30) {
-      const id = players.length;
+      const id = uuid();
 
       const newPartyArr = [...partyArray];
       const counts = newPartyArr.map((p) => p.length);
@@ -175,30 +176,12 @@ function App() {
   };
 
   const handleRemove = (id) => {
-    setPlayers((prevPlayers) => {
-      const updatedPlayers = prevPlayers.filter((p) => p.id !== id);
-      return updatedPlayers.map((p, index) => ({
-        ...p,
-        id: index,
-      }));
-    });
+    setPlayers((prevPlayers) => prevPlayers.filter((p) => p.id !== id));
     setPartyArray((prevParties) =>
-      prevParties.map((pt) => {
-        const updatedPlayers = pt.filter((p) => p.id !== id);
-        return updatedPlayers.map((p, index) => ({
-          ...p,
-          id: index,
-        }));
-      })
+      prevParties.map((pt) => pt.filter((p) => p.id !== id))
     );
     setPartyOrderArray((prevPartyOrder) =>
-      prevPartyOrder.map((pt) => {
-        const updatedPlayers = pt.filter((p) => p.id !== id);
-        return updatedPlayers.map((p, index) => ({
-          ...p,
-          id: index,
-        }));
-      })
+      prevPartyOrder.map((pt) => pt.filter((p) => p.id !== id))
     );
   };
 

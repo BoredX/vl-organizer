@@ -54,7 +54,9 @@ const createPlayerFromHorizontalInput = (input) => {
   const jobs = [];
   const loots = [];
   for (let i = 0; i < rows.length; i += 1) {
-    const str = rows[i].replace('belt set', 'belt');
+    let str = rows[i].replace('Belt', 'belt');
+    str = str.replace('Set', 'set');
+    str = str.replace('belt set', 'belt');
     const sanitized = filterArray(parseDelimiters(str));
     if (sanitized.length !== 3) {
       player.jobs = undefined;
