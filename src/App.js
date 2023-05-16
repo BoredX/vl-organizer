@@ -1,4 +1,4 @@
-import { Box, Stack, Button, Typography, Tooltip } from '@mui/material';
+import { Box, Stack, Button, Tooltip, Typography } from '@mui/material';
 import './index.css';
 import { useEffect, useRef, useState } from 'react';
 import { v4 as uuid } from 'uuid';
@@ -20,6 +20,9 @@ import {
 } from './utils/generator';
 import { jobFlags } from './utils/jobs';
 import CopyRow from './components/CopyRow';
+import RunSelect from './components/RunSelect';
+import EditRunText from './components/EditRunText';
+// import NavBar from './components/NavBar';
 
 function App() {
   const [players, setPlayers] = useState(() => {
@@ -41,13 +44,69 @@ function App() {
       ? JSON.parse(savedPartyOrder)
       : [[], [], [], []]; // bs, tl, smoke(always empty now), belt
   });
+  const [runs, setRuns] = useState(() => {
+    const savedRuns = localStorage.getItem('runs');
+    return savedRuns !== null ? JSON.parse(savedRuns) : [];
+  });
+  const [currentRun, setCurrentRun] = useState(() => {
+    const savedCurrentRun = localStorage.getItem('currentRun');
+    return savedCurrentRun !== null
+      ? JSON.parse(savedCurrentRun)
+      : { id: '', name: '', players, partyArray, partyOrderArray, bonusArray };
+  });
 
   useEffect(() => {
     localStorage.setItem('players', JSON.stringify(players));
     localStorage.setItem('bonus', JSON.stringify(bonusArray));
     localStorage.setItem('parties', JSON.stringify(partyArray));
     localStorage.setItem('partyOrder', JSON.stringify(partyOrderArray));
-  }, [players, bonusArray, partyArray, partyOrderArray]);
+    localStorage.setItem('runs', JSON.stringify(runs));
+    localStorage.setItem('currentRun', JSON.stringify(currentRun));
+  }, [players, bonusArray, partyArray, partyOrderArray, runs, currentRun]);
+
+  const handleSaveRun = (id, name) => {
+    let run = {
+      id,
+      name,
+      players,
+      partyArray,
+      partyOrderArray,
+      bonusArray,
+    };
+    const savedRunIndex = runs.findIndex((r) => r.id === id);
+    if (savedRunIndex !== -1) {
+      const newRuns = [
+        ...runs.slice(0, savedRunIndex),
+        run,
+        ...runs.slice(savedRunIndex + 1),
+      ];
+      setRuns(newRuns);
+    } else {
+      run = { ...run, id: uuid() };
+      setRuns([run, ...runs]);
+    }
+    setCurrentRun(run);
+  };
+
+  const handleSelectRun = (runId) => {
+    // save current run
+    const currRun = runs.find((r) => r.id === currentRun.id);
+    currRun.players = players;
+    currRun.partyArray = partyArray;
+    currRun.partyOrderArray = partyOrderArray;
+    currRun.bonusArray = bonusArray;
+    // set(currentRun.partyArray);
+    // setPartyOrderArray(currentRun.partyOrderArray);
+    // setBonusArray(currentRun.bonusArray);
+
+    // load selected run
+    const run = runs.find((r) => r.id === runId);
+    setCurrentRun(run);
+    setPlayers(run.players);
+    setPartyArray(run.partyArray);
+    setPartyOrderArray(run.partyOrderArray);
+    setBonusArray(run.bonusArray);
+  };
 
   const inputRef = useRef(null);
 
@@ -356,91 +415,95 @@ function App() {
   const nxList = () => players.filter((p) => p.isNx);
 
   return (
-    <Box my={7} display="flex" alignItems="center" justifyContent="center">
-      <Stack spacing={6}>
-        <Box display="flex" justifyContent="center">
-          <Typography variant="h3">VL Organizer</Typography>
-        </Box>
-        <Box display="flex" justifyContent="center" columnGap={10}>
-          <Box>
-            <PlayerForm
-              // players={players}
-              onAddPlayer={handleNewPlayer}
-              editingPlayer={editingPlayer}
-              inputRef={inputRef}
-              onSubmitEdit={handleUpdatePlayer}
-            />
+    <Box>
+      {/* <NavBar /> */}
+      <Box my={7} display="flex" alignItems="center" justifyContent="center">
+        <Stack spacing={6}>
+          <RunSelect
+            runs={runs}
+            currentRunId={currentRun.id}
+            onSelectRun={handleSelectRun}
+          />
+          <EditRunText run={currentRun} onSaveRun={handleSaveRun} />
+          <Box display="flex" justifyContent="center" columnGap={10}>
+            <Box>
+              <PlayerForm
+                onAddPlayer={handleNewPlayer}
+                editingPlayer={editingPlayer}
+                inputRef={inputRef}
+                onSubmitEdit={handleUpdatePlayer}
+              />
+            </Box>
+            <Stack spacing={2} marginTop={2}>
+              <Button
+                variant="contained"
+                color="success"
+                onClick={handleRollLoot}
+              >
+                Roll loot
+              </Button>
+              <Button
+                variant="contained"
+                color="success"
+                onClick={handleRollNx}
+              >
+                Roll NX
+              </Button>
+            </Stack>
           </Box>
-          <Stack spacing={2} marginTop={2}>
-            {/* <Button variant="contained" color="error">
-              Reset Run
-            </Button> */}
+          <Roster
+            players={players}
+            onRemove={handleRemove}
+            onEdit={handleStartEdit}
+            onToggleBelt={handleToggleBelt}
+            onToggleBonus={handleToggleBonus}
+            onToggleNx={handleToggleNx}
+            onJobChange={handleJobChange}
+          />
+          <TeamForm
+            players={players}
+            numBsSuggest={numSuggestedBs(players)}
+            onGenerateTeam={handleGenerateTeam}
+          />
+          <PartyRow
+            parties={partyArray}
+            onPartyChange={handleChangeParty}
+            onJobChange={handleJobChange}
+          />
+          <MiscRow
+            partyOrders={partyOrderArray}
+            onOrderChange={handleOrderChange}
+            shadParty={shadParty}
+          />
+          <CopyRow
+            partyArray={partyArray}
+            partyOrderArray={partyOrderArray}
+            bonusArray={bonusArray}
+            getShadParty={shadParty}
+            getNxList={nxList}
+          />
+          <Tooltip
+            placement="top"
+            title={
+              <Typography fontSize={14}>
+                Supports random layout for 12+ looters. NX looters have less box
+              </Typography>
+            }
+          >
             <Button
               variant="contained"
               color="success"
-              onClick={handleRollLoot}
+              onClick={handleGenerateBonus}
             >
-              Roll loot
+              Generate Bonus
             </Button>
-            <Button variant="contained" color="success" onClick={handleRollNx}>
-              Roll NX
-            </Button>
-          </Stack>
-        </Box>
-        <Roster
-          players={players}
-          onRemove={handleRemove}
-          onEdit={handleStartEdit}
-          onToggleBelt={handleToggleBelt}
-          onToggleBonus={handleToggleBonus}
-          onToggleNx={handleToggleNx}
-          onJobChange={handleJobChange}
-        />
-        <TeamForm
-          players={players}
-          // bsSigned={players.filter((p) => p.jobs.includes(Job.BS)).length}
-          // buccSigned={players.filter((p) => p.jobs.includes(Job.Bucc)).length}
-          numBsSuggest={numSuggestedBs(players)}
-          onGenerateTeam={handleGenerateTeam}
-        />
-        <PartyRow
-          parties={partyArray}
-          onPartyChange={handleChangeParty}
-          onJobChange={handleJobChange}
-        />
-        <MiscRow
-          partyOrders={partyOrderArray}
-          onOrderChange={handleOrderChange}
-          shadParty={shadParty}
-        />
-        <CopyRow
-          partyArray={partyArray}
-          partyOrderArray={partyOrderArray}
-          bonusArray={bonusArray}
-          getShadParty={shadParty}
-          getNxList={nxList}
-        />
-        <Tooltip
-          placement="top"
-          title={
-            <Typography fontSize={14}>
-              Supports random layout for 12+ looters. NX looters have less box
-            </Typography>
-          }
-        >
-          <Button
-            variant="contained"
-            color="success"
-            onClick={handleGenerateBonus}
-          >
-            Generate Bonus
-          </Button>
-        </Tooltip>
-        <Box display="flex" justifyContent="center">
-          <BonusRow bonusArray={bonusArray} />
-        </Box>
-        <img src="/vl_bonus.png" alt="Bonus map" />
-      </Stack>
+          </Tooltip>
+          <Box display="flex" justifyContent="center">
+            <BonusRow bonusArray={bonusArray} />
+          </Box>
+          <img src="/vl_bonus.png" alt="Bonus map" />
+        </Stack>
+      </Box>
     </Box>
   );
 }

@@ -198,7 +198,7 @@ const PlayerForm = ({ onAddPlayer, editingPlayer, onSubmitEdit, inputRef }) => {
           variant="contained"
           size="small"
           onClick={handleSwitchVertical}
-          style={{ width: 160 }}
+          style={{ width: 120 }}
         >
           {isVerticalInput ? (
             <Stack direction="row">
