@@ -54,7 +54,7 @@ const TeamForm = ({ players, numBsSuggest, onGenerateTeam }) => {
             <FormControl>
               <InputLabel>BS</InputLabel>
               <Select
-                value={Math.max(1, numBs)}
+                value={bsSigned > 0 ? Math.max(1, numBs) : ''}
                 onChange={handleBsChange}
                 label="BS"
               >
@@ -70,7 +70,7 @@ const TeamForm = ({ players, numBsSuggest, onGenerateTeam }) => {
               <InputLabel>Buccs</InputLabel>
               <Select
                 label="Buccs"
-                value={Math.max(1, numBucc)}
+                value={buccSigned > 0 ? Math.max(1, numBucc) : ''}
                 onChange={handleBuccChange}
               >
                 {range(1, Math.min(buccSigned + 1, 6)).map((x) => (
