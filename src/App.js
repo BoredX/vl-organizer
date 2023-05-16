@@ -22,7 +22,7 @@ import { jobFlags } from './utils/jobs';
 import CopyRow from './components/CopyRow';
 import RunSelect from './components/RunSelect';
 import EditRunText from './components/EditRunText';
-// import NavBar from './components/NavBar';
+import NavBar from './components/NavBar';
 
 function App() {
   const [players, setPlayers] = useState(() => {
@@ -65,6 +65,9 @@ function App() {
   }, [players, bonusArray, partyArray, partyOrderArray, runs, currentRun]);
 
   const handleSaveRun = (id, name) => {
+    if (name === '') {
+      return;
+    }
     let run = {
       id,
       name,
@@ -91,13 +94,12 @@ function App() {
   const handleSelectRun = (runId) => {
     // save current run
     const currRun = runs.find((r) => r.id === currentRun.id);
-    currRun.players = players;
-    currRun.partyArray = partyArray;
-    currRun.partyOrderArray = partyOrderArray;
-    currRun.bonusArray = bonusArray;
-    // set(currentRun.partyArray);
-    // setPartyOrderArray(currentRun.partyOrderArray);
-    // setBonusArray(currentRun.bonusArray);
+    if (currRun) {
+      currRun.players = players;
+      currRun.partyArray = partyArray;
+      currRun.partyOrderArray = partyOrderArray;
+      currRun.bonusArray = bonusArray;
+    }
 
     // load selected run
     const run = runs.find((r) => r.id === runId);
@@ -106,6 +108,36 @@ function App() {
     setPartyArray(run.partyArray);
     setPartyOrderArray(run.partyOrderArray);
     setBonusArray(run.bonusArray);
+  };
+
+  const resetData = (id, name) => {
+    setCurrentRun({
+      id,
+      name,
+      players,
+      partyArray,
+      partyOrderArray,
+      bonusArray,
+    });
+    setPlayers([]);
+    setPartyArray([[], [], [], [], []]);
+    setPartyOrderArray([[], [], [], []]);
+    setBonusArray([]);
+  };
+
+  const handleNewRun = () => {
+    handleSaveRun(currentRun.id, currentRun.name);
+    resetData('', '');
+  };
+
+  const handleResetRun = () => {
+    resetData(currentRun.id, currentRun.name);
+  };
+
+  const handleDeleteRun = () => {
+    const currRunId = currentRun.id;
+    resetData('', '');
+    setRuns(runs.filter((r) => r.id !== currRunId));
   };
 
   const inputRef = useRef(null);
@@ -416,7 +448,12 @@ function App() {
 
   return (
     <Box>
-      {/* <NavBar /> */}
+      <NavBar
+        currentRun={currentRun}
+        onNewRun={handleNewRun}
+        onReset={handleResetRun}
+        onDelete={handleDeleteRun}
+      />
       <Box my={7} display="flex" alignItems="center" justifyContent="center">
         <Stack spacing={6}>
           <RunSelect
