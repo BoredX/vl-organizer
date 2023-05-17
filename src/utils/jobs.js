@@ -8,7 +8,9 @@ const jobNameMapping = {
   Hero: ['hero', 'hr'],
   Bucc: ['bucc', 'buc', 'buccaneer'],
   Sair: ['sair', 'corsair'],
-  SE: ['mm', 'bm', 'se'],
+  // SE: ['mm', 'bm', 'se'],
+  MM: ['mm', 'marksman'],
+  BM: ['bm', 'bowmaster'],
   BS: ['bs', 'bishop', 'bish', 'bis'],
 };
 
@@ -34,7 +36,8 @@ export const jobFlags = (job) => ({
   isBs: job === Job.BS,
   isShad: job === Job.Shad,
   isBucc: job === Job.Bucc,
-  isSe: job === Job.SE,
+  isSe: job === Job.BM || job === Job.MM,
+  isMm: job === Job.MM,
   isWar: job === Job.DK || job === Job.Hero || job === Job.Pally,
   isNl: job === Job.NL,
   isSair: job === Job.Sair,
@@ -47,6 +50,7 @@ export const resetPlayer = {
   isBs: false,
   isBucc: false,
   isSe: false,
+  isMm: false,
   isWar: false,
   isNl: false,
   isSair: false,
@@ -59,10 +63,11 @@ const tierList = (() => ({
   Hero: 2,
   DK: 3,
   NL: 4,
-  SE: 5,
-  Sair: 6,
-  Pally: 7,
-  BS: 8,
+  MM: 5,
+  BM: 6,
+  Sair: 7,
+  Pally: 8,
+  BS: 9,
 }))();
 
 const reverseTierList = invert(tierList);
@@ -77,8 +82,9 @@ const jobDisplayMap = {
   Pally: 4,
   Shad: 5,
   Bucc: 6,
-  SE: 7,
-  BS: 8,
+  MM: 7,
+  BM: 8,
+  BS: 9,
 };
 
 export const getDisplayOrder = (player) =>

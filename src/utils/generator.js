@@ -218,15 +218,24 @@ export const generateTeam = (inputPlayers, maxNumBs, minNumBucc, sortOrder) => {
 
   [tiers, players] = updatePlayersOnAdd(players, tiers, bses);
 
-  // choose SE - try to get 2 max
+  // choose SE - try to get 2 max (BMs first)
   const currentNumSe = players.filter((p) => p.isSe).length;
-  const numMoreSeToGet = 2 - currentNumSe;
-  let ses =
-    numMoreSeToGet > 0 ? tiers[getTier(Job.SE)].splice(0, numMoreSeToGet) : [];
-  ses = ses.map((p) =>
-    updateCharBySortedIndex(p, getSortedJobsIndexByJob(Job.SE, p))
+  let numMoreSeToGet = 2 - currentNumSe;
+  let bms =
+    numMoreSeToGet > 0 ? tiers[getTier(Job.BM)].splice(0, numMoreSeToGet) : [];
+  bms = bms.map((p) =>
+    updateCharBySortedIndex(p, getSortedJobsIndexByJob(Job.BM, p))
   );
-  [tiers, players] = updatePlayersOnAdd(players, tiers, ses);
+  [tiers, players] = updatePlayersOnAdd(players, tiers, bms);
+
+  // If not enough, get MMs
+  numMoreSeToGet -= bms.length;
+  let mms =
+    numMoreSeToGet > 0 ? tiers[getTier(Job.MM)].splice(0, numMoreSeToGet) : [];
+  mms = mms.map((p) =>
+    updateCharBySortedIndex(p, getSortedJobsIndexByJob(Job.MM, p))
+  );
+  [tiers, players] = updatePlayersOnAdd(players, tiers, mms);
 
   // Get requested number of buccs first
   const currentNumBucc = players.filter((p) => p.isBucc).length;
@@ -353,7 +362,18 @@ const generateParties = (players) => {
   }
 
   let filled = parties.map((team) => team.length);
-  const se = shuffle(players.filter((p) => p.isSe));
+  // Put MMs in later parties where there is a bucc
+  const se = players
+    .filter((p) => p.isSe)
+    .sort((a, b) => {
+      if (a.isMm) {
+        return 1;
+      }
+      if (b.isMm) {
+        return -1;
+      }
+      return 0;
+    });
   for (let i = 0; i < se.length; i += 1) {
     parties[i].push(se[i]);
   }
@@ -424,7 +444,7 @@ const fillPartyWithOneWarSairRestBuccs = (party, sairs, wars, buccs) => {
     let slotsLeft = 6 - party.length;
     let numSairs = sairs.length;
     let numWars = wars.length;
-    const numWarAndSairInParty = party.filter((p) => p.isWar || p.isSair);
+    let numWarAndSairInParty = party.filter((p) => p.isWar || p.isSair);
     while (
       slotsLeft >= 2 &&
       numWarAndSairInParty < 2 &&
@@ -435,6 +455,7 @@ const fillPartyWithOneWarSairRestBuccs = (party, sairs, wars, buccs) => {
       numSairs = sairs.length;
       numWars = wars.length;
       slotsLeft -= 1;
+      numWarAndSairInParty += 1;
     }
 
     // Fill rest with buccs

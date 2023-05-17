@@ -12,6 +12,7 @@ const playerPropType = {
   isShad: PropTypes.bool,
   isBs: PropTypes.bool,
   isBucc: PropTypes.bool,
+  isMm: PropTypes.bool,
   isSe: PropTypes.bool,
   isWar: PropTypes.bool,
   isNl: PropTypes.bool,
