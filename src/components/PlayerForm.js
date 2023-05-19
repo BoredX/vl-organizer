@@ -144,7 +144,7 @@ const PlayerForm = ({ onAddPlayer, editingPlayer, onSubmitEdit, inputRef }) => {
         isBonus: false,
         isBelt: false,
         isNx: false,
-        boxes: [],
+        boxes: '',
       };
       if (editingPlayer === null) {
         onAddPlayer(inputPlayer);

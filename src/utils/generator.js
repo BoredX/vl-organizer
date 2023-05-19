@@ -68,7 +68,7 @@ export const rollLoot = (players) => {
 };
 
 export const generateBonusArray = (players) => {
-  if (players.length < 12) return [];
+  if (players.length < 6) return [];
   const resetBonus = players.map((p) => ({ ...p, boxes: '' }));
   const bonusLooters = resetBonus.filter((p) => p.isBonus);
   const minBoxPerPlayer = Math.floor(30 / bonusLooters.length);
@@ -91,14 +91,18 @@ export const generateBonusArray = (players) => {
     playersWhoGetMoreBoxesIndex.includes(i)
   );
   const moreBoxesPlayerIds = playersWithMoreBoxes.map((p) => p.id);
+  const playersWithLessBoxes = bonusLooters.filter(
+    (p) => !moreBoxesPlayerIds.includes(p.id)
+  );
 
   const getNumBoxes = (id) =>
     moreBoxesPlayerIds.includes(id) ? maxBoxPerPlayer : minBoxPerPlayer;
+  let matrix = [];
+  let moreBoxIndex = [];
+  let lessBoxIndex = [];
+
   let sortedBonusLooters = [];
   if (maxBoxPerPlayer === 3 && bonusLooters.length >= 12) {
-    const playersWithLessBoxes = bonusLooters.filter(
-      (p) => !moreBoxesPlayerIds.includes(p.id)
-    );
     // 12 looters =  6 people is 2 box,  6 people 3 box
     // 13 looters =  9 people is 2 box,  4 people 3 box
     // 14 looters = 12 people is 2 box,  2 people 3 box
@@ -107,6 +111,7 @@ export const generateBonusArray = (players) => {
       maxBoxIndex < moreBoxesPlayerIds.length;
 
     ) {
+      // create rows of 23 32 for >= 12 people
       sortedBonusLooters.push(playersWithLessBoxes[minBoxIndex]);
       minBoxIndex += 1;
       sortedBonusLooters.push(playersWithMoreBoxes[maxBoxIndex]);
@@ -121,30 +126,89 @@ export const generateBonusArray = (players) => {
       ...sortedBonusLooters,
       ...playersWithLessBoxes.slice(moreBoxesPlayerIds.length),
     ];
-  } else {
-    sortedBonusLooters = bonusLooters.sort((a, b) => {
-      const aVal = moreBoxesPlayerIds.includes(a.id);
-      const bVal = moreBoxesPlayerIds.includes(b.id);
-      return bVal - aVal;
-    });
+
+    let row = 0;
+    let column = 1;
+    for (const player of sortedBonusLooters) {
+      let boxes = '';
+      const numBoxesThisPlayerGets = getNumBoxes(player.id);
+      for (let i = 0; i < numBoxesThisPlayerGets; i += 1) {
+        if (column > 10) {
+          row += 1;
+          column = 1;
+        }
+        const letter = String.fromCharCode('a'.charCodeAt(0) + row);
+        boxes += letter + column;
+        column += 1;
+      }
+      player.boxes = boxes;
+    }
+  } else if (bonusLooters.length === 11) {
+    // 8 people 3 box | 3 people 2 box
+    matrix = [
+      [0, 0, 1, 1, 1, 2, 2, 2, 3, 3],
+      [4, 4, 4, 5, 5, 6, 6, 7, 7, 7],
+      [8, 8, 8, 9, 5, 6, 9, 10, 10, 10],
+    ];
+    moreBoxIndex = [1, 2, 4, 5, 6, 7, 8, 10];
+    lessBoxIndex = [0, 3, 9];
+  } else if (bonusLooters.length === 10) {
+    // 10 people 3 box
+    matrix = [
+      [0, 0, 0, 1, 1, 2, 2, 3, 3, 3],
+      [4, 4, 4, 5, 1, 2, 6, 7, 7, 7],
+      [8, 8, 8, 5, 5, 6, 6, 9, 9, 9],
+    ];
+    moreBoxIndex = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
+    lessBoxIndex = [];
+  } else if (bonusLooters.length === 9) {
+    // 3 people 4 box | 6 people 3 box
+    matrix = [
+      [0, 0, 0, 1, 1, 2, 2, 3, 3, 3],
+      [4, 4, 4, 4, 1, 2, 5, 5, 5, 5],
+      [6, 6, 6, 6, 7, 7, 7, 8, 8, 8],
+    ];
+    moreBoxIndex = [4, 5, 6];
+    lessBoxIndex = [0, 1, 2, 3, 7, 8];
+  } else if (bonusLooters.length === 8) {
+    // 6 people 4 box | 2 people 3 box
+    matrix = [
+      [0, 0, 0, 0, 1, 2, 3, 3, 3, 3],
+      [4, 4, 4, 4, 1, 2, 5, 5, 5, 5],
+      [6, 6, 6, 6, 1, 2, 7, 7, 7, 7],
+    ];
+    moreBoxIndex = [0, 3, 4, 5, 6, 7];
+    lessBoxIndex = [1, 2];
+  } else if (bonusLooters.length === 7) {
+    // 2 people 5 box | 5 people 4 box
+    matrix = [
+      [0, 0, 0, 0, 0, 1, 1, 1, 1, 1],
+      [2, 2, 2, 2, 3, 3, 4, 4, 4, 4],
+      [5, 5, 5, 5, 3, 3, 6, 6, 6, 6],
+    ];
+    moreBoxIndex = [0, 1];
+    lessBoxIndex = [2, 3, 4, 5, 6];
+  } else if (bonusLooters.length === 6) {
+    // 6 people 5 box
+    matrix = [
+      [0, 0, 0, 0, 0, 1, 1, 1, 1, 1],
+      [2, 2, 2, 2, 2, 3, 3, 3, 3, 3],
+      [4, 4, 4, 4, 4, 5, 5, 5, 5, 5],
+    ];
+    moreBoxIndex = [0, 1, 2, 3, 4, 5];
+    lessBoxIndex = [];
+  }
+  if (bonusLooters.length < 12) {
+    generateArrayedBonus(
+      bonusLooters,
+      matrix,
+      moreBoxIndex,
+      playersWithMoreBoxes,
+      lessBoxIndex,
+      playersWithLessBoxes
+    );
   }
 
-  let row = 0;
-  let column = 1;
-  for (const player of sortedBonusLooters) {
-    let boxes = '';
-    const numBoxesThisPlayerGets = getNumBoxes(player.id);
-    for (let i = 0; i < numBoxesThisPlayerGets; i += 1) {
-      if (column > 10) {
-        row += 1;
-        column = 1;
-      }
-      const letter = String.fromCharCode('a'.charCodeAt(0) + row);
-      boxes += letter + column;
-      column += 1;
-    }
-    player.boxes = boxes;
-  }
   const aLooters = bonusLooters.filter((p) => p.boxes.startsWith('a'));
   const bLooters = bonusLooters.filter((p) => p.boxes.startsWith('b'));
   const cLooters = bonusLooters.filter((p) => p.boxes.startsWith('c'));
@@ -174,6 +238,77 @@ export const generateBonusArray = (players) => {
     cLooters.map((p) => ({ boxes: p.boxes, name: p.names[p.chosenIndex] }))
   );
   return result;
+};
+
+const generateArrayedBonus = (
+  bonusLooters,
+  matrix,
+  moreBoxIndex,
+  playersWithMoreBoxes,
+  lessBoxIndex,
+  playersWithLessBoxes
+) => {
+  // 6  =  6 people 5 box
+  // 7  =  2 people 5 box | 5 people 4 box
+  // 8  =  6 people 4 box | 2 people 3 box
+  // 9  =  3 people 4 box | 6 people 3 box
+  // 10 = 10 people 3 box | 0 people 2 box
+  // 11 =  8 people 3 box | 3 people 2 box
+  // 12 =  6 people 3 box | 6 people 2 box
+  const playerLootAssignment = Array(bonusLooters.length);
+
+  let wipedPlayersWithMoreBoxes = playersWithMoreBoxes.map((p) => ({
+    ...p,
+    boxes: '',
+  }));
+
+  let wipedPlayersWithLessBoxes = shuffle(
+    playersWithLessBoxes.map((p) => ({
+      ...p,
+      boxes: '',
+    }))
+  );
+
+  const leftoverMoreBoxes =
+    moreBoxIndex.length - wipedPlayersWithMoreBoxes.length;
+  if (leftoverMoreBoxes > 0) {
+    const nxLootersWithMoreBoxes = wipedPlayersWithLessBoxes.slice(
+      0,
+      leftoverMoreBoxes
+    );
+    wipedPlayersWithMoreBoxes = [
+      ...wipedPlayersWithMoreBoxes,
+      ...nxLootersWithMoreBoxes,
+    ];
+    wipedPlayersWithLessBoxes =
+      wipedPlayersWithLessBoxes.slice(leftoverMoreBoxes);
+  }
+
+  let moreBoxIdx = 0;
+  for (let pIdx = 0; pIdx < wipedPlayersWithMoreBoxes.length; pIdx += 1) {
+    playerLootAssignment[moreBoxIndex[moreBoxIdx]] =
+      wipedPlayersWithMoreBoxes[pIdx];
+    moreBoxIdx += 1;
+  }
+
+  // Extra leftover more boxes
+
+  let lessBoxIdx = 0;
+  for (let pIdx = 0; pIdx < wipedPlayersWithLessBoxes.length; pIdx += 1) {
+    playerLootAssignment[lessBoxIndex[lessBoxIdx]] =
+      wipedPlayersWithLessBoxes[pIdx];
+    lessBoxIdx += 1;
+  }
+  for (let row = 0; row < 3; row += 1) {
+    for (let col = 0; col < 10; col += 1) {
+      const letter = String.fromCharCode('a'.charCodeAt(0) + row);
+      const box = letter + (col + 1);
+      const plyr = bonusLooters.find(
+        (p) => p.id === playerLootAssignment[matrix[row][col]].id
+      );
+      plyr.boxes += box;
+    }
+  }
 };
 
 export const numSuggestedBs = (players) => {

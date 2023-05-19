@@ -20,7 +20,7 @@ const playerPropType = {
   isBonus: PropTypes.bool,
   isBelt: PropTypes.bool,
   isNx: PropTypes.bool,
-  boxes: PropTypes.arrayOf(PropTypes.string),
+  boxes: PropTypes.any, // supposed to be a string, but i put as array earlier
 };
 
 export default playerPropType;
