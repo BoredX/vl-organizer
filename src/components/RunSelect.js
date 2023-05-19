@@ -19,33 +19,32 @@ const RunSelect = ({ runs, currentRunId, onSelectRun }) => {
   };
 
   return (
-    <Stack display="flex" alignItems="center">
-      <Stack direction="row" width="46.5%">
-        <TextField
-          select
-          multiline
-          label="Select Run"
-          value={selectedRunId}
-          fullWidth
-          maxRows={5}
-          onChange={handleChange}
-          SelectProps={{
-            MenuProps: {
-              PaperProps: {
-                style: {
-                  maxHeight: 200,
-                },
+    <Stack alignItems="center">
+      <TextField
+        select
+        multiline
+        label="Select Run"
+        value={selectedRunId}
+        fullWidth
+        maxRows={5}
+        style={{ width: '700px' }}
+        onChange={handleChange}
+        SelectProps={{
+          MenuProps: {
+            PaperProps: {
+              style: {
+                maxHeight: 200,
               },
             },
-          }}
-        >
-          {runs.map((r) => (
-            <MenuItem key={r.id} value={r.id}>
-              {r.name}
-            </MenuItem>
-          ))}
-        </TextField>
-      </Stack>
+          },
+        }}
+      >
+        {runs.map((r) => (
+          <MenuItem key={r.id} value={r.id}>
+            {r.name}
+          </MenuItem>
+        ))}
+      </TextField>
     </Stack>
   );
 };

@@ -1,4 +1,12 @@
-import { Box, Stack, Button, Tooltip, Typography } from '@mui/material';
+import {
+  Box,
+  Stack,
+  Button,
+  Tooltip,
+  Typography,
+  useMediaQuery,
+  useTheme,
+} from '@mui/material';
 import './index.css';
 import { useEffect, useRef, useState } from 'react';
 import { v4 as uuid } from 'uuid';
@@ -63,6 +71,9 @@ function App() {
     localStorage.setItem('runs', JSON.stringify(runs));
     localStorage.setItem('currentRun', JSON.stringify(currentRun));
   }, [players, bonusArray, partyArray, partyOrderArray, runs, currentRun]);
+
+  const theme = useTheme();
+  const isSmallScreen = useMediaQuery(theme.breakpoints.down('xl'));
 
   const handleSaveRun = (id, name) => {
     if (name === '') {
@@ -455,7 +466,7 @@ function App() {
         onDelete={handleDeleteRun}
       />
       <Box my={7} display="flex" alignItems="center" justifyContent="center">
-        <Stack spacing={6}>
+        <Stack spacing={6} sx={{ width: isSmallScreen ? '98%' : 'auto' }}>
           <RunSelect
             runs={runs}
             currentRunId={currentRun.id}
