@@ -9,8 +9,8 @@ const jobNameMapping = {
   Bucc: ['bucc', 'buc', 'buccaneer'],
   Sair: ['sair', 'corsair'],
   // SE: ['mm', 'bm', 'se'],
-  MM: ['mm', 'marksman'],
-  BM: ['bm', 'bowmaster'],
+  MM: ['mm', 'marksman', 'marksmen'],
+  BM: ['bm', 'bowmaster', 'se'], // default se sign to BM
   BS: ['bs', 'bishop', 'bish', 'bis'],
 };
 
