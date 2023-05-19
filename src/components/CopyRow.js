@@ -132,12 +132,19 @@ const copyPartyInfo = (parties, partyOrder, getShadParty) => {
 const orderString = (party) =>
   `${party.map((p) => `${p.names[p.chosenIndex]}`).join(', ')}\n\n`;
 
-export const copyBonusDiscord = (bonusArray) =>
-  bonusArray
-    .map((bonus) =>
-      bonus.map((b) => `${b.boxes.padEnd(7, ' ') + b.name}`).join('\n')
-    )
+export const copyBonusDiscord = (bonusArray) => {
+  const numLooters = bonusArray.reduce((acc, b) => acc + b.length, 0);
+  if (numLooters >= 12) {
+    return bonusArray
+      .map((bonus) =>
+        bonus.map((b) => `${b.boxes.padEnd(7, ' ') + b.name}`).join('\n')
+      )
+      .join('\n');
+  }
+  return bonusArray
+    .map((bonus) => bonus.map((b) => `${`${b.boxes} ${b.name}`}`).join('\n'))
     .join('\n');
+};
 
 export const copyBonusInGame = (bonus) =>
   bonus.map((b) => `${`${b.boxes} ${b.name}`}`).join(' | ');
