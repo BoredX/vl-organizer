@@ -1,4 +1,4 @@
-import { findLastIndex, shuffle, times } from 'lodash';
+import { findLastIndex, range, shuffle, times } from 'lodash';
 import { random } from './random';
 import {
   Job,
@@ -83,50 +83,90 @@ export const generateBonusArray = (players) => {
     (p) => !nxLootedPlayerIds.includes(p.id)
   );
 
+  const numLeftoverMoreBoxes =
+    numPlayersWithMoreBoxes - playersThatShouldGetMoreBoxes.length;
   // Get index of bonus looters who get more boxes
-  const playersWhoGetMoreBoxesIndex = random(
-    numPlayersWithMoreBoxes,
-    playersThatShouldGetMoreBoxes.length
-  );
+  const playersWhoGetMoreBoxesIndex =
+    numPlayersWithMoreBoxes < playersThatShouldGetMoreBoxes.length
+      ? random(numPlayersWithMoreBoxes, playersThatShouldGetMoreBoxes.length) // choose random people to get more b ox
+      : range(0, playersThatShouldGetMoreBoxes.length); // enough box for everyone who didn't loot nx to get more boxes
   const playersWithMoreBoxes = playersThatShouldGetMoreBoxes.filter((p, i) =>
     playersWhoGetMoreBoxesIndex.includes(i)
   );
+
+  const playersWithLessBoxesShuffled = shuffle(nxLootedPlayers);
+
+  /** adjusted for adding NX looters to have more boxes  * START */
+  let adjustedMoreBoxesPlayers = playersWithMoreBoxes;
+  if (numLeftoverMoreBoxes > 0) {
+    // there are extra box left for NX looters
+    adjustedMoreBoxesPlayers = [
+      ...adjustedMoreBoxesPlayers,
+      ...playersWithLessBoxesShuffled.slice(0, numLeftoverMoreBoxes),
+    ];
+  }
+
+  const adjustedMoreBoxesPlayerIds = adjustedMoreBoxesPlayers.map((p) => p.id);
+  /** adjusted for adding NX looters to have more boxes  * END */
+
   const moreBoxesPlayerIds = playersWithMoreBoxes.map((p) => p.id);
   const playersWithLessBoxes = bonusLooters.filter(
     (p) => !moreBoxesPlayerIds.includes(p.id)
   );
 
+  const finalMoreBoxPlayerIds =
+    numLeftoverMoreBoxes > 0 ? adjustedMoreBoxesPlayerIds : moreBoxesPlayerIds;
+
   const getNumBoxes = (id) =>
-    moreBoxesPlayerIds.includes(id) ? maxBoxPerPlayer : minBoxPerPlayer;
+    finalMoreBoxPlayerIds.includes(id) ? maxBoxPerPlayer : minBoxPerPlayer;
+
   let matrix = [];
   let moreBoxIndex = [];
   let lessBoxIndex = [];
 
   let sortedBonusLooters = [];
-  if (maxBoxPerPlayer === 3 && bonusLooters.length >= 12) {
+  if (bonusLooters.length >= 12) {
     // 12 looters =  6 people is 2 box,  6 people 3 box
     // 13 looters =  9 people is 2 box,  4 people 3 box
     // 14 looters = 12 people is 2 box,  2 people 3 box
-    for (
-      let minBoxIndex = 0, maxBoxIndex = 0;
-      maxBoxIndex < moreBoxesPlayerIds.length;
+    // 15 looters = 15 people is 2 box
+    // 16 looters =  2 people is 1 box,  14 people 2 box
+    // 17 looters =  4 people is 1 box,  13 people 2 box
+    // 18 looters =  6 people is 1 box,  12 people 2 box
+    // 19 looters =  8 people is 1 box,  11 people 2 box
+    // 20 looters = 10 people is 1 box,  10 people 2 box
+    // 21 looters = 12 people is 1 box,   9 people 2 box
+    // 22 looters = 14 people is 1 box,   8 people 2 box
+    // 23 looters = 16 people is 1 box,   7 people 2 box
+    // 24 looters = 18 people is 1 box,   6 people 2 box
+    if (maxBoxPerPlayer === 3) {
+      for (
+        let minBoxIndex = 0, maxBoxIndex = 0;
+        maxBoxIndex < moreBoxesPlayerIds.length;
 
-    ) {
-      // create rows of 23 32 for >= 12 people
-      sortedBonusLooters.push(playersWithLessBoxes[minBoxIndex]);
-      minBoxIndex += 1;
-      sortedBonusLooters.push(playersWithMoreBoxes[maxBoxIndex]);
-      maxBoxIndex += 1;
-      sortedBonusLooters.push(playersWithMoreBoxes[maxBoxIndex]);
-      maxBoxIndex += 1;
-      sortedBonusLooters.push(playersWithLessBoxes[minBoxIndex]);
-      minBoxIndex += 1;
+      ) {
+        // create rows of 23 32 for 12-14 looters people
+        sortedBonusLooters.push(playersWithLessBoxes[minBoxIndex]);
+        minBoxIndex += 1;
+        sortedBonusLooters.push(playersWithMoreBoxes[maxBoxIndex]);
+        maxBoxIndex += 1;
+        sortedBonusLooters.push(playersWithMoreBoxes[maxBoxIndex]);
+        maxBoxIndex += 1;
+        sortedBonusLooters.push(playersWithLessBoxes[minBoxIndex]);
+        minBoxIndex += 1;
+      }
+      // Fill in the rest with less box people
+      sortedBonusLooters = [
+        ...sortedBonusLooters,
+        ...playersWithLessBoxes.slice(moreBoxesPlayerIds.length),
+      ];
+    } else {
+      sortedBonusLooters = bonusLooters.sort((a, b) => {
+        const aVal = adjustedMoreBoxesPlayerIds.includes(a.id);
+        const bVal = adjustedMoreBoxesPlayerIds.includes(b.id);
+        return bVal - aVal;
+      });
     }
-    // Fill in the rest with less box people
-    sortedBonusLooters = [
-      ...sortedBonusLooters,
-      ...playersWithLessBoxes.slice(moreBoxesPlayerIds.length),
-    ];
 
     let row = 0;
     let column = 1;
@@ -149,10 +189,10 @@ export const generateBonusArray = (players) => {
     matrix = [
       [0, 0, 1, 1, 1, 2, 2, 2, 3, 3],
       [4, 4, 4, 5, 5, 6, 6, 7, 7, 7],
-      [8, 8, 8, 9, 5, 6, 9, 10, 10, 10],
+      [8, 8, 8, 9, 9, 9, 6, 10, 10, 10],
     ];
-    moreBoxIndex = [1, 2, 4, 5, 6, 7, 8, 10];
-    lessBoxIndex = [0, 3, 9];
+    moreBoxIndex = [1, 2, 4, 6, 7, 8, 9, 10];
+    lessBoxIndex = [0, 3, 5];
   } else if (bonusLooters.length === 10) {
     // 10 people 3 box
     matrix = [
