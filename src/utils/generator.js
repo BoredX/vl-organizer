@@ -30,9 +30,46 @@ const createMapFromRandomBelts = (beltLooters) => {
   return beltLooterPlayerIdMap(players);
 };
 
-const updateWithBeltLooters = (players) => {
+const createMapForAdditionalBeltLooter = (
+  playersWithBelts,
+  beltPlayersWithoutBelt
+) => {
+  const playerIndexIds = random(
+    6 - playersWithBelts.length,
+    beltPlayersWithoutBelt.length
+  );
+
+  const players = [
+    ...playersWithBelts,
+    ...beltPlayersWithoutBelt.filter((_, i) => playerIndexIds.includes(i)),
+  ];
+  return beltLooterPlayerIdMap(players);
+};
+
+const updateWithBeltLooters = (players, addAdditionalBeltsOnly) => {
   const playersWantingBelts = players.filter((p) => p.loots.includes('belt'));
-  const updatedBeltLooters = createMapFromRandomBelts(playersWantingBelts);
+
+  let updatedBeltLooters = {};
+  if (addAdditionalBeltsOnly) {
+    const playersAlreadyHaveBelt = players.filter((p) => p.isBelt);
+    if (playersAlreadyHaveBelt.length < 6) {
+      // Add random missing number of belts
+      const beltPlayersWithoutBelt = players.filter(
+        (p) => !p.isBelt && p.loots.includes('belt')
+      );
+
+      updatedBeltLooters = createMapForAdditionalBeltLooter(
+        playersAlreadyHaveBelt,
+        beltPlayersWithoutBelt
+      );
+    } else {
+      updatedBeltLooters = createMapFromRandomBelts(playersAlreadyHaveBelt);
+    }
+  } else {
+    updatedBeltLooters = createMapFromRandomBelts(playersWantingBelts);
+  }
+
+  console.log(updatedBeltLooters);
   return players.map((p) => {
     const selectedForBelt = updatedBeltLooters[p.id];
     const noBeltFlags = {
@@ -63,7 +100,12 @@ export const rollNx = (players) => {
 };
 
 export const rollLoot = (players) => {
-  const updatedPlayersWithBelts = updateWithBeltLooters(players);
+  const updatedPlayersWithBelts = updateWithBeltLooters(players, false);
+  return updatedPlayersWithBelts;
+};
+
+export const rollMoreBelt = (players) => {
+  const updatedPlayersWithBelts = updateWithBeltLooters(players, true);
   return updatedPlayersWithBelts;
 };
 
@@ -90,7 +132,7 @@ export const generateBonusArray = (players) => {
     numPlayersWithMoreBoxes < playersThatShouldGetMoreBoxes.length
       ? random(numPlayersWithMoreBoxes, playersThatShouldGetMoreBoxes.length) // choose random people to get more b ox
       : range(0, playersThatShouldGetMoreBoxes.length); // enough box for everyone who didn't loot nx to get more boxes
-  const playersWithMoreBoxes = playersThatShouldGetMoreBoxes.filter((p, i) =>
+  const playersWithMoreBoxes = playersThatShouldGetMoreBoxes.filter((_, i) =>
     playersWhoGetMoreBoxesIndex.includes(i)
   );
 

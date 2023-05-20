@@ -1,4 +1,11 @@
-import { Box, Button, Stack, TextField, Typography } from '@mui/material';
+import {
+  Box,
+  Button,
+  Stack,
+  TextField,
+  Tooltip,
+  Typography,
+} from '@mui/material';
 import { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import { ArrowDownward, ArrowRightAlt } from '@mui/icons-material';
@@ -201,13 +208,31 @@ const PlayerForm = ({ onAddPlayer, editingPlayer, onSubmitEdit, inputRef }) => {
           style={{ width: 120 }}
         >
           {isVerticalInput ? (
-            <Stack direction="row">
-              <Typography>Text</Typography> <ArrowDownward />
-            </Stack>
+            <Tooltip
+              placement="top"
+              title={
+                <Typography fontSize={14}>
+                  Click to change to horizontal input
+                </Typography>
+              }
+            >
+              <Stack direction="row">
+                <Typography>Text</Typography> <ArrowDownward />
+              </Stack>
+            </Tooltip>
           ) : (
-            <Stack direction="row">
-              <Typography>Text</Typography> <ArrowRightAlt />
-            </Stack>
+            <Tooltip
+              placement="top"
+              title={
+                <Typography fontSize={14}>
+                  Click to change to vertical input
+                </Typography>
+              }
+            >
+              <Stack direction="row">
+                <Typography>Text</Typography> <ArrowRightAlt />
+              </Stack>
+            </Tooltip>
           )}
         </Button>
       </Box>
