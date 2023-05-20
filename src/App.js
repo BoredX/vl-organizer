@@ -25,6 +25,7 @@ import {
   rollLoot,
   rollNx,
   findShadPartyIndex,
+  rollMoreBelt,
 } from './utils/generator';
 import { jobFlags } from './utils/jobs';
 import CopyRow from './components/CopyRow';
@@ -389,6 +390,20 @@ function App() {
     );
   };
 
+  const handleRollMoreBelt = () => {
+    const newPlayers = rollMoreBelt(players);
+    setPlayers(newPlayers);
+
+    setPartyOrderArray((prevPartyOrder) =>
+      prevPartyOrder.map((pt, i) => {
+        if (i === 3) {
+          return newPlayers.filter((p) => p.isBelt);
+        }
+        return pt;
+      })
+    );
+  };
+
   const handleRollNx = () => {
     setPlayers(rollNx(players));
   };
@@ -483,20 +498,55 @@ function App() {
               />
             </Box>
             <Stack spacing={2} marginTop={2}>
-              <Button
-                variant="contained"
-                color="success"
-                onClick={handleRollLoot}
+              <Tooltip
+                placement="top"
+                title={
+                  <Typography fontSize={14}>
+                    Randomly roll 6 people to loot belt, everyone else get bonus
+                  </Typography>
+                }
               >
-                Roll loot
-              </Button>
-              <Button
-                variant="contained"
-                color="success"
-                onClick={handleRollNx}
+                <Button
+                  variant="contained"
+                  color="success"
+                  onClick={handleRollLoot}
+                >
+                  Roll loot
+                </Button>
+              </Tooltip>
+              <Tooltip
+                placement="top"
+                title={
+                  <Typography fontSize={14}>
+                    When Belt looter DC, remove them from Belt and roll a new
+                    random belt looter
+                  </Typography>
+                }
               >
-                Roll NX
-              </Button>
+                <Button
+                  variant="contained"
+                  color="success"
+                  onClick={handleRollMoreBelt}
+                >
+                  Roll more belt
+                </Button>
+              </Tooltip>
+              <Tooltip
+                placement="top"
+                title={
+                  <Typography fontSize={14}>
+                    Randomly roll 6 bonus looter to get NX
+                  </Typography>
+                }
+              >
+                <Button
+                  variant="contained"
+                  color="success"
+                  onClick={handleRollNx}
+                >
+                  Roll NX
+                </Button>
+              </Tooltip>
             </Stack>
           </Box>
           <Roster
@@ -533,7 +583,11 @@ function App() {
           <Tooltip
             placement="top"
             title={
-              <Typography fontSize={14}>NX looters have less box</Typography>
+              <Typography fontSize={14}>
+                Randomly rolls boxes for bonus looters. NX looters will receive
+                less boxes. If someone DCs, turn off their bonus so they will
+                not get any boxes button
+              </Typography>
             }
           >
             <Button
