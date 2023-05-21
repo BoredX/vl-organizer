@@ -56,7 +56,11 @@ const Roster = ({
                       <Box>
                         <img
                           id={file}
-                          src={`${file}.png`}
+                          src={
+                            i === player.chosenIndex
+                              ? `${file}.png`
+                              : `${file}_grey.png`
+                          }
                           alt={i < player.jobs.length - 1 ? `${job},` : job}
                           style={{
                             marginRight: i < players.length - 1 ? '3px' : 0,
