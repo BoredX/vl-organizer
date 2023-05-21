@@ -488,7 +488,7 @@ function App() {
             onSelectRun={handleSelectRun}
           />
           <EditRunText run={currentRun} onSaveRun={handleSaveRun} />
-          <Box display="flex" justifyContent="center" columnGap={10}>
+          <Box display="flex" justifyContent="center" columnGap={5}>
             <Box>
               <PlayerForm
                 onAddPlayer={handleNewPlayer}
@@ -497,7 +497,7 @@ function App() {
                 onSubmitEdit={handleUpdatePlayer}
               />
             </Box>
-            <Stack spacing={2} marginTop={2}>
+            <Stack spacing={2}>
               <Tooltip
                 placement="top"
                 title={

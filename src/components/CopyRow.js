@@ -20,7 +20,8 @@ const CopyRow = ({
   const handleNXCopy = () => {
     const nx = getNxList();
     if (nx.length > 0) {
-      const str = orderString(nx);
+      let str = `NX: ${orderString(nx)}`;
+      str = str.replace('\n\n', '');
       navigator.clipboard.writeText(str);
     }
   };
@@ -34,7 +35,17 @@ const CopyRow = ({
 
   const handleBonusCopyInGame = (bonus) => {
     if (bonus) {
-      const str = copyBonusInGame(bonus);
+      let str = copyBonusInGame(bonus);
+      if (str.length > 70) {
+        const numLooters = str.split('|').length;
+        let separatorIndex = 0;
+        for (let i = 0; i < Math.floor(numLooters / 2); i += 1) {
+          separatorIndex = str.indexOf('|', separatorIndex + 1);
+        }
+        const lineOne = str.substring(0, separatorIndex - 1);
+        const lineTwo = str.substring(separatorIndex + 2);
+        str = `${lineOne}\n${lineTwo}`;
+      }
       navigator.clipboard.writeText(str);
     }
   };
@@ -125,7 +136,8 @@ const copyPartyInfo = (parties, partyOrder, getShadParty) => {
   result += `**Smoke Order**\n`;
   result += orderString(getShadParty());
   result += '**Belts**\n';
-  result += orderString(partyOrder[3]);
+  const lastString = orderString(partyOrder[3]);
+  result += lastString.replace('\n\n', '');
   return result;
 };
 
