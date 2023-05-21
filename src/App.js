@@ -465,6 +465,20 @@ function App() {
 
   /*   Drag and drop handlers end   */
 
+  const handleBsLeaderChange = (id) => {
+    setPartyOrderArray((prevPartyOrder) =>
+      prevPartyOrder.map((pt, i) =>
+        i === 0
+          ? pt.map((p) =>
+              p.id === id
+                ? { ...p, isBsLeader: true }
+                : { ...p, isBsLeader: false }
+            )
+          : pt
+      )
+    );
+  };
+
   const shadParty = () => {
     const index = findShadPartyIndex(partyArray);
     return index >= 0 ? partyArray[index].filter((p) => p.isShad) : [];
@@ -572,6 +586,7 @@ function App() {
             partyOrders={partyOrderArray}
             onOrderChange={handleOrderChange}
             shadParty={shadParty}
+            onBsLeaderChange={handleBsLeaderChange}
           />
           <CopyRow
             partyArray={partyArray}
