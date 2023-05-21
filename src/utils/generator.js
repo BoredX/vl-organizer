@@ -55,7 +55,7 @@ const updateWithBeltLooters = (players, addAdditionalBeltsOnly) => {
     if (playersAlreadyHaveBelt.length < 6) {
       // Add random missing number of belts
       const beltPlayersWithoutBelt = players.filter(
-        (p) => !p.isBelt && p.loots.includes('belt')
+        (p) => !p.isBelt && p.isBonus && p.loots.includes('belt')
       );
 
       updatedBeltLooters = createMapForAdditionalBeltLooter(
@@ -76,7 +76,7 @@ const updateWithBeltLooters = (players, addAdditionalBeltsOnly) => {
       isBelt: false,
       isNx: false,
     };
-    const isDc = !p.isBelt && !p.isBonus;
+    const isDc = addAdditionalBeltsOnly && !p.isBelt && !p.isBonus;
     const notSelectedOutput = isDc ? p : { ...p, ...noBeltFlags };
     return selectedForBelt
       ? {

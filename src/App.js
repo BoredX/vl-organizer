@@ -622,7 +622,6 @@ function App() {
           ) : (
             (() => {
               const numPlayers = players.filter((p) => p.isBonus).length;
-              console.log(numPlayers);
               if (numPlayers > 6) {
                 return (
                   <img
