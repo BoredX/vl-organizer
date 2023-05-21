@@ -40,6 +40,18 @@ const NavBar = ({ onNewRun, onReset, onDelete }) => {
 
         <Box display="flex" alignItems="center">
           <Button
+            component="a"
+            href="https://youtu.be/w6VtxQqzFtg"
+            target="_blank"
+            color="inherit"
+            rel="noopener noreferrer"
+            style={{ marginRight: 15 }}
+          >
+            <Typography variant="button" fontWeight="bold">
+              Demo Video
+            </Typography>
+          </Button>
+          <Button
             color="inherit"
             style={{ marginRight: 15 }}
             onClick={onNewRun}

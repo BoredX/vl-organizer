@@ -602,6 +602,7 @@ function App() {
             <BonusRow bonusArray={bonusArray} />
           </Box>
           <img src="/vl_bonus.png" alt="Bonus map" />
+          <img src="/vl_bonus_11.png" alt="Bonus map for few looters" />
         </Stack>
       </Box>
     </Box>
