@@ -616,8 +616,24 @@ function App() {
           <Box display="flex" justifyContent="center">
             <BonusRow bonusArray={bonusArray} />
           </Box>
-          <img src="/vl_bonus.png" alt="Bonus map" />
-          <img src="/vl_bonus_11.png" alt="Bonus map for few looters" />
+          {players.filter((p) => p.isBonus).length >= 12 ||
+          players.filter((p) => p.isBonus).length <= 6 ? (
+            <img src="/vl_bonus.png" alt="Bonus map" />
+          ) : (
+            (() => {
+              const numPlayers = players.filter((p) => p.isBonus).length;
+              console.log(numPlayers);
+              if (numPlayers > 6) {
+                return (
+                  <img
+                    src={`/vl_bonus_${numPlayers}.png`}
+                    alt="Bonus map for few looters"
+                  />
+                );
+              }
+              return null;
+            })()
+          )}
         </Stack>
       </Box>
     </Box>
