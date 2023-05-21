@@ -39,11 +39,11 @@ const createMapForAdditionalBeltLooter = (
     beltPlayersWithoutBelt.length
   );
 
-  const players = [
+  const beltLooters = [
     ...playersWithBelts,
     ...beltPlayersWithoutBelt.filter((_, i) => playerIndexIds.includes(i)),
   ];
-  return beltLooterPlayerIdMap(players);
+  return beltLooterPlayerIdMap(beltLooters);
 };
 
 const updateWithBeltLooters = (players, addAdditionalBeltsOnly) => {
@@ -69,7 +69,6 @@ const updateWithBeltLooters = (players, addAdditionalBeltsOnly) => {
     updatedBeltLooters = createMapFromRandomBelts(playersWantingBelts);
   }
 
-  console.log(updatedBeltLooters);
   return players.map((p) => {
     const selectedForBelt = updatedBeltLooters[p.id];
     const noBeltFlags = {
@@ -77,12 +76,14 @@ const updateWithBeltLooters = (players, addAdditionalBeltsOnly) => {
       isBelt: false,
       isNx: false,
     };
+    const isDc = !p.isBelt && !p.isBonus;
+    const notSelectedOutput = isDc ? p : { ...p, ...noBeltFlags };
     return selectedForBelt
       ? {
           ...p,
           ...selectedForBelt,
         }
-      : { ...p, ...noBeltFlags };
+      : notSelectedOutput;
   });
 };
 
