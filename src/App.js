@@ -601,7 +601,7 @@ function App() {
               <Typography fontSize={14}>
                 Randomly rolls boxes for bonus looters. NX looters will receive
                 less boxes. If someone DCs, turn off their bonus so they will
-                not get any boxes button
+                not get any boxes
               </Typography>
             }
           >
