@@ -1,6 +1,7 @@
 import PropTypes from 'prop-types';
 
 import {
+  IconButton,
   Paper,
   Table,
   TableBody,
@@ -8,11 +9,20 @@ import {
   TableContainer,
   TableHead,
   TableRow,
+  Tooltip,
+  Typography,
 } from '@mui/material';
 import { DragDropContext, Draggable, Droppable } from '@hello-pangea/dnd';
 import { useEffect, useState } from 'react';
+import { Star, StarBorder } from '@mui/icons-material';
 
-const MiscTable = ({ name, ptIndex, players, onOrderChange }) => {
+const MiscTable = ({
+  name,
+  ptIndex,
+  players,
+  onOrderChange,
+  onBsLeaderChange,
+}) => {
   const [partyOrder, setPartyOrder] = useState(players);
 
   useEffect(() => {
@@ -61,8 +71,42 @@ const MiscTable = ({ name, ptIndex, players, onOrderChange }) => {
                           cursor: 'grab',
                         }}
                       >
-                        <TableCell align="center">
-                          {p.names[p.chosenIndex]}
+                        <TableCell
+                          align="center"
+                          sx={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            position: 'relative',
+                          }}
+                        >
+                          {name === 'Res Order' && (
+                            <Tooltip
+                              placement="top"
+                              title={
+                                <Typography fontSize={14}>
+                                  Click to change BS leader
+                                </Typography>
+                              }
+                            >
+                              <IconButton
+                                sx={{
+                                  position: 'absolute',
+                                  left: '10%',
+                                }}
+                                onClick={() => onBsLeaderChange(p.id)}
+                              >
+                                {p.isBsLeader ? (
+                                  <Star color="primary" />
+                                ) : (
+                                  <StarBorder />
+                                )}
+                              </IconButton>
+                            </Tooltip>
+                          )}
+                          <Typography variant="body2" align="center">
+                            {p.names[p.chosenIndex]}
+                          </Typography>
                         </TableCell>
                       </TableRow>
                     )}
@@ -83,6 +127,8 @@ MiscTable.propTypes = {
   ptIndex: PropTypes.number,
   players: PropTypes.arrayOf(PropTypes.object),
   onOrderChange: PropTypes.func,
+  bsLeaderIndex: PropTypes.number,
+  onBsLeaderChange: PropTypes.func,
 };
 
 export default MiscTable;

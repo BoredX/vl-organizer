@@ -123,10 +123,14 @@ const copyPartyInfo = (parties, partyOrder, getShadParty) => {
     }
   });
   if (partyOrder[0].length > 0) {
-    const firstBs = partyOrder[0][0];
-    const firstBsName = firstBs.names[firstBs.chosenIndex];
-    result += `**Bishop Party** - **Leader**: ${firstBsName}\n`;
-    result += copyBsParty(partyOrder);
+    const bsLeaderFiltered = partyOrder[0].filter((p) => p.isBsLeader);
+
+    const bsLeader =
+      bsLeaderFiltered.length !== 0 ? bsLeaderFiltered[0] : partyOrder[0][0];
+
+    const bsLeaderName = bsLeader.names[bsLeader.chosenIndex];
+    result += `**Bishop Party** - **Leader**: ${bsLeaderName}\n`;
+    result += copyBsParty(partyOrder, bsLeader.id);
   }
 
   result += `**Res Order**\n`;
@@ -161,10 +165,10 @@ export const copyBonusDiscord = (bonusArray) => {
 export const copyBonusInGame = (bonus) =>
   bonus.map((b) => `${`${b.boxes} ${b.name}`}`).join(' | ');
 
-const copyBsParty = (partyOrder) => {
+const copyBsParty = (partyOrder, bsLeaderId) => {
   let bses = partyOrder[0]
+    .filter((p) => p.id !== bsLeaderId)
     .map((p) => p.names[p.chosenIndex])
-    .slice(1)
     .join(' ');
 
   const buccs = partyOrder[1].map((p) => p.names[p.chosenIndex]).join(' ');
