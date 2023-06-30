@@ -3,6 +3,8 @@ import { Box, Button } from '@mui/material';
 import playerPropType from './playerPropType';
 import { indexToPartyLetter } from '../utils/generator';
 
+const esc = '';
+
 const CopyRow = ({
   partyArray,
   partyOrderArray,
@@ -119,7 +121,7 @@ const copyPartyInfo = (parties, partyOrder, getShadParty) => {
       const ldr = ` - **Leader**: ${igns[0]}`;
       const jr = party.length > 2 ? ` - **Jr**: ${igns[1]}` : '';
       result += `**Team ${indexToPartyLetter(i)}**${ldr}${jr}\n`;
-      result += `/partyinvite ${igns.join(' ')}\n\n`;
+      result += `/partyinvite ${igns.slice(1).join(' ')}\n\n`;
     }
   });
   if (partyOrder[0].length > 0) {
@@ -171,11 +173,12 @@ const copyBsParty = (partyOrder, bsLeaderId) => {
     .map((p) => p.names[p.chosenIndex])
     .join(' ');
 
-  const buccs = partyOrder[1].map((p) => p.names[p.chosenIndex]).join(' ');
+  // const buccs = partyOrder[1].map((p) => p.names[p.chosenIndex]).join(' ');
   if (bses !== '') {
     bses += ' ';
   }
-  const testStr = `/partyinvite ${bses}${buccs}`;
+  // const testStr = `/partyinvite ${bses}${buccs}`;
+  const testStr = `/partyinvite ${bses}`;
   let result = '';
   if (testStr.length > 70) {
     const limitedString = testStr.substring(0, 70);
