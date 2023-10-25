@@ -121,7 +121,7 @@ const copyPartyInfo = (parties, partyOrder, getShadParty) => {
       const ldr = ` - **Leader**: ${igns[0]}`;
       const jr = party.length > 2 ? ` - **Jr**: ${igns[1]}` : '';
       result += `**Team ${indexToPartyLetter(i)}**${ldr}${jr}\n`;
-      result += `/pi ${igns.slice(1).join(' ')}\n\n`;
+      result += `/partyinvite ${igns.slice(1).join(' ')}\n\n`;
     }
   });
   if (partyOrder[0].length > 0) {
@@ -177,14 +177,14 @@ const copyBsParty = (partyOrder, bsLeaderId) => {
   if (bses !== '') {
     bses += ' ';
   }
-  // const testStr = `/pi ${bses}${buccs}`;
-  const testStr = `/pi ${bses}`;
+  // const testStr = `/partyinvite ${bses}${buccs}`;
+  const testStr = `/partyinvite ${bses}`;
   let result = '';
   if (testStr.length > 70) {
     const limitedString = testStr.substring(0, 70);
     const idx = limitedString.lastIndexOf(' ');
     result += `${testStr.substring(0, idx)}\n`;
-    result += `/pi${testStr.substring(idx)}\n\n`;
+    result += `/partyinvite${testStr.substring(idx)}\n\n`;
   } else {
     result = `${testStr}\n\n`;
   }
